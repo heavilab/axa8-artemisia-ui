@@ -35,7 +35,11 @@ const data = {
       icon: FolderGit2,
       items: [
         { title: "Naming Conventions", url: "#", isPendingFeature: true },
-        { title: "Data Glossary", url: "#", isPendingFeature: true },
+        {
+          title: "Data Glossary",
+          url: "#",
+          isPendingFeature: true,
+        },
         { title: "Account Mappings", url: "#", isPendingFeature: true },
         { title: "Country Mappings", url: "/dashboard/country-mappings" },
         { title: "Currency Exchange Rates", url: "#", isPendingFeature: true },
@@ -48,9 +52,9 @@ const data = {
       isActive: true,
       icon: DatabaseZap,
       items: [
-        { title: "API Collection", url: "#" },
-        { title: "Non-API Collection", url: "#" },
-        { title: "Data Quality", url: "#" },
+        { title: "API Collection", url: "#", isPendingFeature: true },
+        { title: "Non-API Collection", url: "#", isPendingFeature: true },
+        { title: "Data Quality", url: "#", isPendingFeature: true },
       ],
     },
   ],
@@ -64,7 +68,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem className="flex">
             <SidebarMenuButton size="lg" asChild>
-              <a href="dashboard/">
+              <a href="/dashboard">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Image
                     src="/logo.svg"
