@@ -1,0 +1,45 @@
+name: Deploy axa-aiaui-app to Cloud Run
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/axa-aiaui-app/**'
+      - '.github/workflows/deploy-axa-aiaui-app.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: spartan-acrobat-462612-j1
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t europe-west1-docker.pkg.dev/spartan-acrobat-462612-j1/axa-aiaui-docker/axa-aiaui-app:${{ github.sha }} ./apps/axa-aiaui-app
+          docker push europe-west1-docker.pkg.dev/spartan-acrobat-462612-j1/axa-aiaui-docker/axa-aiaui-app:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy axa-aiaui-app \
+            --image europe-west1-docker.pkg.dev/spartan-acrobat-462612-j1/axa-aiaui-docker/axa-aiaui-app:${{ github.sha }} \
+            --region europe-west1 \
+            --platform managed \
+            --allow-unauthenticated
