@@ -1,11 +1,12 @@
-// lib/utils/csv.ts
-
-export function exportToCSV<T extends object>(data: T[], filename: string) {
+export function exportToCSV<T extends Record<string, unknown>>(
+  data: T[],
+  filename: string
+) {
   if (!data || data.length === 0) return;
 
   const headers = Object.keys(data[0]);
   const rows = data.map((row) =>
-    headers.map((field) => `"${String((row as any)[field] ?? "")}"`).join(",")
+    headers.map((field) => `"${String(row[field] ?? "")}"`).join(",")
   );
 
   const csv = [headers.join(","), ...rows].join("\n");
