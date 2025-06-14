@@ -18,6 +18,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 
 export function NavUser({
   user,
@@ -71,8 +72,17 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <BadgeCheck />
-                Account
+                <BadgeCheck className="size-4" />
+                <span>Account</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link
+                  href="/dashboard/admin"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <BadgeCheck className="size-4" />
+                  <span>Admin</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings />

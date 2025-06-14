@@ -11,11 +11,11 @@ export type CountryMapping = {
 export const columns: ColumnDef<CountryMapping>[] = [
   {
     accessorKey: "country",
-    header: "Country Code",
+    header: "Country",
   },
   {
     accessorKey: "data_currency",
-    header: "Currency",
+    header: "Data Currency",
   },
   {
     accessorKey: "language",
