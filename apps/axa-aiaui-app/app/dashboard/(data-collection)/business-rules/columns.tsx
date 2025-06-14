@@ -17,7 +17,7 @@ export function getColumns(filters: Filters): ColumnDef<BusinessRule>[] {
     <div className="flex items-center gap-2">
       <span>{label}</span>
       {isActive && (
-        <Badge variant="default" className="flex items-center gap-1 text-xs">
+        <Badge variant="secondary" className="flex items-center gap-1 text-xs">
           <Filter className="w-3 h-3" />
         </Badge>
       )}

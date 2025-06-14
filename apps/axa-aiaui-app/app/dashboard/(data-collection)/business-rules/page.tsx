@@ -5,9 +5,15 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { getColumns } from "./columns";
 import { DataTable } from "./data-table";
-import { businessRuleSchema } from "@/schemas/firestore";
-import { BusinessRule } from "@/schemas/firestore";
+import { businessRuleSchema, BusinessRule } from "@/schemas/firestore";
 import { z } from "zod";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+
 import {
   Select,
   SelectContent,
@@ -16,10 +22,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Filter } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-// Utility to get unique values from an array
-function getUnique(arr: string[]): string[] {
-  return Array.from(new Set(arr));
+// Utility to get unique values
+function getUnique(arr: (string | undefined)[]): string[] {
+  return Array.from(new Set(arr.filter((v): v is string => !!v)));
 }
 
 export default function BusinessRulesPage() {
@@ -33,7 +41,6 @@ export default function BusinessRulesPage() {
     match_type: "all",
   });
 
-  // All filter values
   const [agencies, setAgencies] = useState<string[]>([]);
   const [dataSources, setDataSources] = useState<string[]>([]);
   const [fields, setFields] = useState<string[]>([]);
@@ -54,42 +61,11 @@ export default function BusinessRulesPage() {
       setRules(parsed);
       setFilteredRules(parsed);
 
-      // Set unique filter values
-      setAgencies(
-        getUnique(
-          parsed
-            .map((r) => r.agency)
-            .filter((v): v is string => typeof v === "string")
-        )
-      );
-      setDataSources(
-        getUnique(
-          parsed
-            .map((r) => r.data_source)
-            .filter((v): v is string => typeof v === "string")
-        )
-      );
-      setFields(
-        getUnique(
-          parsed
-            .map((r) => r.field)
-            .filter((v): v is string => typeof v === "string")
-        )
-      );
-      setTargetFields(
-        getUnique(
-          parsed
-            .map((r) => r.target_field)
-            .filter((v): v is string => typeof v === "string")
-        )
-      );
-      setMatchTypes(
-        getUnique(
-          parsed
-            .map((r) => r.match_type)
-            .filter((v): v is string => typeof v === "string")
-        )
-      );
+      setAgencies(getUnique(parsed.map((r) => r.agency)));
+      setDataSources(getUnique(parsed.map((r) => r.data_source)));
+      setFields(getUnique(parsed.map((r) => r.field)));
+      setTargetFields(getUnique(parsed.map((r) => r.target_field)));
+      setMatchTypes(getUnique(parsed.map((r) => r.match_type)));
     }
 
     fetchRules();
@@ -114,18 +90,18 @@ export default function BusinessRulesPage() {
     field: keyof typeof filters,
     values: string[]
   ) => (
-    <div className="flex flex-col gap-1">
-      <Label>{label}</Label>
+    <div className="flex flex-col gap-2 w-[200px]">
+      <Label className="text-xs text-muted-foreground">{label}</Label>
       <Select
         value={filters[field]}
         onValueChange={(value) =>
           setFilters((prev) => ({ ...prev, [field]: value }))
         }
       >
-        <SelectTrigger>
+        <SelectTrigger className="w-full h-9">
           <SelectValue placeholder={`Select ${label}`} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="max-h-none">
           <SelectItem value="all">All</SelectItem>
           {values.map((v) => (
             <SelectItem key={v} value={v}>
@@ -137,17 +113,38 @@ export default function BusinessRulesPage() {
     </div>
   );
 
+  const activeFilterCount = Object.values(filters).filter(
+    (v) => v !== "all"
+  ).length;
+
   return (
     <main className="p-4 space-y-4">
       <h1 className="text-xl font-semibold">Business Rules</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {renderSelect("Agency", "agency", agencies)}
-        {renderSelect("Data Source", "data_source", dataSources)}
-        {renderSelect("Field", "field", fields)}
-        {renderSelect("Target Field", "target_field", targetFields)}
-        {renderSelect("Match Type", "match_type", matchTypes)}
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <div className="flex justify-end">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Filters
+              {activeFilterCount > 0 && (
+                <Badge
+                  variant="secondary"
+                  className="rounded-full px-2 py-0 text-xs"
+                >
+                  {activeFilterCount}
+                </Badge>
+              )}
+            </Button>
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="p-4  flex flex-col gap-4">
+          {renderSelect("Agency", "agency", agencies)}
+          {renderSelect("Data Source", "data_source", dataSources)}
+          {renderSelect("Field", "field", fields)}
+          {renderSelect("Target Field", "target_field", targetFields)}
+          {renderSelect("Match Type", "match_type", matchTypes)}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <DataTable columns={getColumns(filters)} data={filteredRules} />
     </main>
