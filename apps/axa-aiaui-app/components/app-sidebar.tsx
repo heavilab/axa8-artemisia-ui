@@ -47,14 +47,13 @@ const data = {
       ],
     },
     {
-      title: "Data Collection",
+      title: "Media Data Collection",
       url: "#",
       isActive: true,
       icon: DatabaseZap,
       items: [
-        { title: "API Collection", url: "#", isPendingFeature: true },
-        { title: "Non-API Collection", url: "#", isPendingFeature: true },
-        { title: "Data Quality", url: "#", isPendingFeature: true },
+        { title: "Business Rules", url: "business-rules" },
+        { title: "Business Rules Sets", url: "#", isPendingFeature: true },
       ],
     },
   ],

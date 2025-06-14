@@ -1,0 +1,11 @@
+agency,data_source,field,target_field,start_date,end_date,rules_order,match_type,condition,results
+OMD-ES-ESAXA,FacebookAds,campaign_name,product,,,62,REGEXP_CONTAINS,"""auto_""",auto
+OMD-ES-ESAXA,FacebookAds,campaign_name,campaign_objective,,,2,REGEXP_EXTRACT,,awareness
+OMD-ES-ESAXA,FacebookAds,campaign_name,product,,,68,REGEXP_CONTAINS,"""bici""",bike
+OMD-ES-ESAXA,FacebookAds,campaign_name,product,,,70,REGEXP_EXTRACT,,dental
+OMD-ES-ESAXA,FacebookAds,campaign_name,product,,,69,REGEXP_CONTAINS,"""pesca""",fishing
+OMD-ES-ESAXA,FacebookAds,campaign_name,product,,,64,REGEXP_CONTAINS,"""salud""",health
+OMD-ES-ESAXA,FacebookAds,campaign_name,product,,,66,REGEXP_CONTAINS,"""hogar""",home
+OMD-ES-ESAXA,FacebookAds,campaign_name,product,,,67,REGEXP_CONTAINS,"""caza""",hunting
+OMD-ES-ESAXA,FacebookAds,campaign_name,campaign_objective,,,3,REGEXP_CONTAINS,"""lead-generation""",lead
+OMD-ES-ESAXA,FacebookAds,campaign_name,product,,,63,REGEXP_CONTAINS,"""vida""",life

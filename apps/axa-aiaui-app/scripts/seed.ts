@@ -20,9 +20,14 @@ async function clearCollection(collectionName: string) {
   console.log(`🧹 Cleared ${collectionName} (${snapshot.size} docs)`);
 }
 
-async function importCountryMappingsFromCSV() {
-  const filePath = path.join(__dirname, "data", "country_mappings.csv");
-
+async function importFromCSV({
+  fileName,
+  collectionName,
+}: {
+  fileName: string;
+  collectionName: string;
+}) {
+  const filePath = path.join(__dirname, "data", fileName);
   const entries: Record<string, any>[] = [];
 
   return new Promise<void>((resolve, reject) => {
@@ -31,7 +36,7 @@ async function importCountryMappingsFromCSV() {
       .on("data", (data) => entries.push(data))
       .on("end", async () => {
         const batch = db.batch();
-        const collectionRef = db.collection("country_mappings");
+        const collectionRef = db.collection(collectionName);
 
         for (const entry of entries) {
           const docRef = collectionRef.doc(); // auto-ID
@@ -39,7 +44,7 @@ async function importCountryMappingsFromCSV() {
         }
 
         await batch.commit();
-        console.log(`✅ Seeded ${entries.length} country_mappings`);
+        console.log(`✅ Seeded ${entries.length} ${collectionName}`);
         resolve();
       })
       .on("error", reject);
@@ -49,11 +54,21 @@ async function importCountryMappingsFromCSV() {
 async function seed() {
   console.log("🌱 Seeding Firestore...");
 
-  // Step 1: Clear the collection
-  await clearCollection("country_mappings");
+  await Promise.all([
+    clearCollection("country_mappings"),
+    clearCollection("business_rules"),
+  ]);
 
-  // Step 2: Populate from CSV
-  await importCountryMappingsFromCSV();
+  await Promise.all([
+    importFromCSV({
+      fileName: "country_mappings.csv",
+      collectionName: "country_mappings",
+    }),
+    importFromCSV({
+      fileName: "business_rules.csv",
+      collectionName: "business_rules",
+    }),
+  ]);
 
   console.log("🎉 Done.");
 }
