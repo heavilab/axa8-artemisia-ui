@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 import { DataTable } from "./data-table";
 import { businessRuleSchema } from "@/schemas/firestore";
 import { BusinessRule } from "@/schemas/firestore";
@@ -149,7 +149,7 @@ export default function BusinessRulesPage() {
         {renderSelect("Match Type", "match_type", matchTypes)}
       </div>
 
-      <DataTable columns={columns} data={filteredRules} />
+      <DataTable columns={getColumns(filters)} data={filteredRules} />
     </main>
   );
 }
