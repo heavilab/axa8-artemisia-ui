@@ -4,8 +4,9 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  ColumnDef,
   getPaginationRowModel,
+  ColumnDef,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -28,10 +29,17 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     initialState: {
       pagination: {
-        pageSize: 15,
+        pageSize: 10,
       },
+      sorting: [
+        {
+          id: "country",
+          desc: false,
+        },
+      ],
     },
   });
 

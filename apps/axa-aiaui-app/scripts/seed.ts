@@ -1,5 +1,5 @@
 import { initializeApp, applicationDefault } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
@@ -13,6 +13,12 @@ initializeApp({
 
 const db = getFirestore();
 
+// Define collection-specific behavior
+const seedConfigs: Record<string, { enrich?: boolean }> = {
+  countries: {}, // regular load
+  businessRules: { enrich: true }, // requires enrichment
+};
+
 async function clearCollection(collectionName: string) {
   const snapshot = await db.collection(collectionName).get();
   const deletions = snapshot.docs.map((doc) => doc.ref.delete());
@@ -20,13 +26,13 @@ async function clearCollection(collectionName: string) {
   console.log(`🧹 Cleared ${collectionName} (${snapshot.size} docs)`);
 }
 
-async function importFromCSV({
-  fileName,
-  collectionName,
-}: {
-  fileName: string;
-  collectionName: string;
-}) {
+async function importFromCSV(
+  collectionName: string,
+  enrich = false,
+  status = "main",
+  setId = "0"
+) {
+  const fileName = `${collectionName}.csv`;
   const filePath = path.join(__dirname, "data", fileName);
   const entries: Record<string, any>[] = [];
 
@@ -39,8 +45,20 @@ async function importFromCSV({
         const collectionRef = db.collection(collectionName);
 
         for (const entry of entries) {
-          const docRef = collectionRef.doc(); // auto-ID
-          batch.set(docRef, entry);
+          const docRef = collectionRef.doc();
+
+          const enriched = enrich
+            ? {
+                ...entry,
+                setId: setId,
+                status: status,
+                createdAt: Timestamp.now(),
+                createdBy: "romain@heaviside.fr",
+                emptyFieldRatio: 0,
+              }
+            : entry;
+
+          batch.set(docRef, enriched);
         }
 
         await batch.commit();
@@ -54,21 +72,17 @@ async function importFromCSV({
 async function seed() {
   console.log("🌱 Seeding Firestore...");
 
-  await Promise.all([
-    clearCollection("country_mappings"),
-    clearCollection("business_rules"),
-  ]);
+  const collectionNames = Object.keys(seedConfigs);
 
-  await Promise.all([
-    importFromCSV({
-      fileName: "country_mappings.csv",
-      collectionName: "country_mappings",
-    }),
-    importFromCSV({
-      fileName: "business_rules.csv",
-      collectionName: "business_rules",
-    }),
-  ]);
+  await Promise.all(collectionNames.map(clearCollection));
+
+  for (const collectionName of collectionNames) {
+    const { enrich } = seedConfigs[collectionName];
+    await importFromCSV(collectionName, enrich);
+    if (enrich) {
+      await importFromCSV(collectionName, enrich, "draft", "1");
+    }
+  }
 
   console.log("🎉 Done.");
 }

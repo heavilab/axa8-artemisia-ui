@@ -1,13 +1,11 @@
-// app/dashboard/country-mappings/data-table.tsx
 "use client";
 
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  getPaginationRowModel,
   ColumnDef,
-  getSortedRowModel,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -30,17 +28,10 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     initialState: {
       pagination: {
-        pageSize: 15,
+        pageSize: 10,
       },
-      sorting: [
-        {
-          id: "country",
-          desc: false,
-        },
-      ],
     },
   });
 

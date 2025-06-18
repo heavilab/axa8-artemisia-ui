@@ -33,18 +33,7 @@ const data = {
       url: "#",
       isActive: true,
       icon: FolderGit2,
-      items: [
-        { title: "Naming Conventions", url: "#", isPendingFeature: true },
-        {
-          title: "Data Glossary",
-          url: "#",
-          isPendingFeature: true,
-        },
-        { title: "Account Mappings", url: "#", isPendingFeature: true },
-        { title: "Country Mappings", url: "/dashboard/country-mappings" },
-        { title: "Currency Exchange Rates", url: "#", isPendingFeature: true },
-        { title: "Contact Directory", url: "#", isPendingFeature: true },
-      ],
+      items: [{ title: "Countries", url: "/dashboard/countries" }],
     },
     {
       title: "Media Data Collection",
@@ -52,8 +41,10 @@ const data = {
       isActive: true,
       icon: DatabaseZap,
       items: [
-        { title: "Business Rules", url: "business-rules" },
-        { title: "Business Rules Sets", url: "#", isPendingFeature: true },
+        {
+          title: "Business Rules",
+          url: "/dashboard/business-rules",
+        },
       ],
     },
   ],

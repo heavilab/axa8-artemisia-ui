@@ -20,7 +20,10 @@ export default function Page() {
           title="Centralization tools"
           href="/dashboard/centralization-tools"
         />
-        <Card title="Data collection" href="/dashboard/data-collection" />
+        <Card
+          title="Media Data collection"
+          href="/dashboard/media-data-collection"
+        />
         <Card title="Services" disabled />
       </div>
 

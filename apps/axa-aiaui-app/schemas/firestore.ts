@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Timestamp } from "firebase/firestore";
 
+// User Schema
 export const userSchema = z.object({
   email: z.string().email(),
   role: z.enum(["Admin", "Standard", "Viewer"]),
@@ -12,29 +13,36 @@ export const userSchema = z.object({
 
 export type User = z.infer<typeof userSchema>;
 
-export const businessRuleSetSchema = z.object({
-  datasetId: z.string(),
-  owner: z.string(),
-  status: z.enum(["main", "draft"]),
+export const businessRulesSchema = z.object({
+  setId: z.string(),
+  status: z.enum(["main", "deprecated", "draft"]),
   createdAt: z.instanceof(Timestamp),
-  publishedAt: z.instanceof(Timestamp).optional(),
+  createdBy: z.string(),
   emptyFieldRatio: z.number().optional(),
-  lastModifiedBy: z.string().optional(),
-});
 
-export type BusinessRuleSet = z.infer<typeof businessRuleSetSchema>;
-
-export const businessRuleSchema = z.object({
   agency: z.string(),
-  data_source: z.string(),
+  dataSource: z.string(),
+
   field: z.string().optional(),
-  target_field: z.string(),
-  start_date: z.string(),
-  end_date: z.string(),
-  rules_order: z.string(),
-  match_type: z.string(),
-  condition: z.string(),
-  results: z.string(),
+  targetField: z.string(),
+
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+
+  rulesOrder: z.number().optional(),
+  matchType: z.string().optional(),
+  condition: z.string().optional(),
+  results: z.string().optional(),
 });
 
-export type BusinessRule = z.infer<typeof businessRuleSchema>;
+export type BusinessRules = z.infer<typeof businessRulesSchema>;
+
+// Country Schema
+export const countrySchema = z.object({
+  id: z.union([z.number(), z.string()]), // Firestore might use string IDs
+  country: z.string().min(2).max(2), // ISO Alpha-2 country code
+  data_currency: z.string().min(3).max(3), // ISO 4217 currency code
+  language: z.string(), // e.g., "EN", or "FA,PS"
+});
+
+export type Country = z.infer<typeof countrySchema>;

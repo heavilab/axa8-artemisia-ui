@@ -13,15 +13,7 @@ export default function Page() {
       </section>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl">
-        <Card title="Naming Conventions" disabled />
-        <Card title="Global Glossary" disabled />
-        <Card title="Media Categorization Levels" disabled />
-        <Card title="Business Classification Levels" disabled />
-        <Card title="Account Mappings" disabled />
-        <Card title="Country Mappings" href="/dashboard/country-mappings" />
-        <Card title="Currency Exchange Rates" disabled />
-        <Card title="Contacts Directory" disabled />
-        <Card title="Placeholder Feature" disabled />
+        <Card title="Countries" href="/dashboard/countries" />
       </div>
     </div>
   );
