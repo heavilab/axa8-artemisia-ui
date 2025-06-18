@@ -13,8 +13,6 @@ export default function SourceFieldMappingsPage() {
   const [activeSetIds, setActiveSetIds] = useState<string[]>([]);
   const [selectedTab, setSelectedTab] = useState<string | null>("main");
 
-  const user = { email: "romain@heaviside.fr" };
-
   useEffect(() => {
     const fetchMappings = async () => {
       const q = query(collection(db, "businessRules"));
@@ -29,7 +27,7 @@ export default function SourceFieldMappingsPage() {
             .filter(
               (m) =>
                 m.status === "main" ||
-                (m.status === "draft" && m.createdBy === user.email)
+                (m.status === "draft" && m.createdBy === "romain@heaviside.fr")
             )
             .map((m) => m.setId)
         )

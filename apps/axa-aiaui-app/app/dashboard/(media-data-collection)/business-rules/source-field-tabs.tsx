@@ -48,12 +48,10 @@ export function SourceFieldTabs({ sets, selected, onSelect, mappings }: Props) {
       {sets.map((setId) => {
         const rows = mappings.filter((m) => m.setId === setId);
         const isMain = rows[0]?.status === "main";
-        const createdAt = rows[0]?.createdAt?.toDate();
-        const createdBy = rows[0]?.createdBy;
 
         const searchQuery = searchQueries[setId] || "";
         return (
-          <TabsContent value={setId} className="mt-4 space-y-4">
+          <TabsContent key={setId} value={setId} className="mt-4 space-y-4">
             <div className="flex justify-between items-center gap-4 flex-wrap">
               {!isMain && (
                 <NewRuleDialog
