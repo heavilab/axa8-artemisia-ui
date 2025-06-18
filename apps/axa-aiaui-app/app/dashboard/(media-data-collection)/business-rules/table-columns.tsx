@@ -6,10 +6,8 @@ import { MoreVertical } from "lucide-react";
 
 export function getColumns({
   isEditable,
-  setId,
 }: {
   isEditable: boolean;
-  setId: string;
 }): ColumnDef<BusinessRules>[] {
   const base: ColumnDef<BusinessRules>[] = [
     { accessorKey: "dataSource", header: "Data Source" },
@@ -27,7 +25,7 @@ export function getColumns({
     ...base,
     {
       id: "actions",
-      cell: ({ row }) => (
+      cell: ({}) => (
         <Button variant="ghost" size="sm">
           <MoreVertical />
         </Button>

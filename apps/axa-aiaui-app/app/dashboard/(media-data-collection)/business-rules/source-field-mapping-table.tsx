@@ -7,20 +7,14 @@ import { useMemo } from "react";
 interface Props {
   data: BusinessRules[];
   isEditable: boolean;
-  setId: string;
+  searchQuery: string;
 }
 
 export function SourceFieldMappingTable({
   data,
   isEditable,
-  setId,
   searchQuery = "",
-}: {
-  data: BusinessRules[];
-  isEditable: boolean;
-  setId: string;
-  searchQuery?: string;
-}) {
+}: Props) {
   const filtered = data.filter(
     (row) =>
       row.field?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -28,10 +22,7 @@ export function SourceFieldMappingTable({
       row.dataSource?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const columns = useMemo(
-    () => getColumns({ isEditable, setId }),
-    [isEditable, setId]
-  );
+  const columns = useMemo(() => getColumns({ isEditable }), [isEditable]);
 
   return <DataTable columns={columns} data={filtered} />;
 }

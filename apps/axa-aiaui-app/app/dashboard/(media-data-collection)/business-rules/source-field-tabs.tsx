@@ -6,8 +6,7 @@ import { SourceFieldMappingTable } from "./source-field-mapping-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { formatDistanceToNowStrict } from "date-fns";
-import { BookUp, Filter, Plus } from "lucide-react"; // Add this import
+import { BookUp, Filter } from "lucide-react"; // Add this import
 import { NewRuleDialog } from "./new-rule-dialog";
 
 interface Props {
@@ -103,7 +102,6 @@ export function SourceFieldTabs({ sets, selected, onSelect, mappings }: Props) {
             <SourceFieldMappingTable
               data={rows}
               isEditable={!isMain}
-              setId={setId}
               searchQuery={searchQuery}
             />
           </TabsContent>
