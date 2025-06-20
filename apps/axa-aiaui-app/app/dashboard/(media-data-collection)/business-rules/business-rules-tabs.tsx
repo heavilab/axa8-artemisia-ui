@@ -147,7 +147,13 @@ export function BusinessRulesTabs({
                   variant="outline"
                   size="sm"
                   className="h-8"
-                  onClick={() => exportToCSV(rows, `business_rules_${setId}`)}
+                  onClick={() => {
+                    const exportData = rows.map((row: any) => {
+                      const { id, ...rest } = row;
+                      return rest;
+                    });
+                    exportToCSV(exportData, `business_rules_${setId}`);
+                  }}
                 >
                   Download CSV
                 </Button>
