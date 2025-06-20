@@ -30,10 +30,11 @@ export async function deleteSetById(setId: string) {
  * Publishes a draft as main for a given setId and scope (country, entity, agency).
  *
  * Steps:
- * 1. Copy all data on other scopes than the current scope in the current draft into the draft (duplicate them into the draft set).
- * 2. Set the current main to deprecated (status = 'deprecated').
- * 3. Add publishedAt = now in the draft.
- * 4. Set the draft status to main.
+ * 1. Find all draft rules for the draft scope in the draft set.
+ * 2. Find all main rules for all scopes.
+ * 3. Set all previous main rules (for all scopes) to deprecated.
+ * 4. Set all draft rules for the draft scope to main and update publishedAt.
+ * 5. For all other-scope main rules, duplicate them as new main rules.
  */
 export async function publishDraftAsMain({
   draftSetId,
@@ -57,26 +58,44 @@ export async function publishDraftAsMain({
     ...(doc.data() as Record<string, unknown>),
   }));
 
-  // 2. Find all rules in the main set for the same country/entity/agency
-  const mainSnapshot = await getDocs(
-    query(
-      colRef,
-      where("status", "==", "main"),
-      where("country", "==", country),
-      where("entity", "==", entity),
-      where("agency", "==", agency)
-    )
+  // 1. Find all draft rules for the draft scope in the draft set
+  const draftScopeRules = draftRules.filter((rule) => {
+    const r = rule as Record<string, unknown>;
+    return r.country === country && r.entity === entity && r.agency === agency;
+  });
+
+  // 2. Find all main rules for all scopes
+  const allMainSnapshot = await getDocs(
+    query(colRef, where("status", "==", "main"))
   );
-  const mainRules = mainSnapshot.docs.map((doc) => ({
+  const allMainRules = allMainSnapshot.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data(),
+    ...(doc.data() as Record<string, unknown>),
   }));
 
-  // 3. Copy all main rules for other scopes (not the current scope) into the draft set as draft rules
-  const otherScopeMainRules = mainRules.filter((rule) => {
+  // 3. Find all main rules for other scopes (not the draft scope)
+  const otherScopeMainRules = allMainRules.filter((rule) => {
     const r = rule as Record<string, unknown>;
     return r.country !== country || r.entity !== entity || r.agency !== agency;
   });
+
+  // 4. Set all previous main rules (for all scopes) to deprecated
+  for (const docSnap of allMainSnapshot.docs) {
+    await updateDoc(doc(db, "businessRules", docSnap.id), {
+      status: "deprecated",
+    });
+  }
+
+  // 5. Set all draft rules for the draft scope to main and update publishedAt
+  for (const rule of draftScopeRules) {
+    await updateDoc(doc(db, "businessRules", (rule as any).id), {
+      status: "main",
+      publishedAt: Timestamp.now(),
+      setId: draftSetId,
+    });
+  }
+
+  // 6. For all other-scope main rules, duplicate them as new main rules
   for (const rule of otherScopeMainRules) {
     if (typeof rule === "object" && rule !== null) {
       const data = Object.fromEntries(
@@ -84,26 +103,11 @@ export async function publishDraftAsMain({
       );
       Object.assign(data, {
         setId: draftSetId,
-        status: "draft",
-        createdAt: Timestamp.now(),
+        status: "main",
+        publishedAt: Timestamp.now(),
       });
       await addDoc(colRef, data);
     }
-  }
-
-  // 4. Set the current main to deprecated
-  for (const mainRule of mainRules) {
-    await updateDoc(doc(db, "businessRules", mainRule.id), {
-      status: "deprecated",
-    });
-  }
-
-  // 5. Update all draft rules in the draft set to main and set publishedAt
-  for (const draftRule of draftRules) {
-    await updateDoc(doc(db, "businessRules", draftRule.id), {
-      status: "main",
-      publishedAt: Timestamp.now(),
-    });
   }
 }
 
