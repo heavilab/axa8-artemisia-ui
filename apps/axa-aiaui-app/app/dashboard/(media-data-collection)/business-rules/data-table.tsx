@@ -6,6 +6,8 @@ import {
   useReactTable,
   ColumnDef,
   getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -17,6 +19,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { timeAgo } from "@/lib/utils";
+import { useState } from "react";
+import { BusinessRules } from "@/schemas/firestore";
 
 interface UserProfile {
   email: string;
@@ -30,14 +34,20 @@ interface DataTableProps<TData> {
   users?: UserProfile[];
 }
 
-export function DataTable<
-  TData extends { updatedAt?: any; createdAt: any; createdBy?: string }
->({ columns, data, users = [] }: DataTableProps<TData>) {
+export function DataTable({
+  columns,
+  data,
+  users = [],
+}: DataTableProps<BusinessRules>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    state: { sorting },
+    onSortingChange: setSorting,
     initialState: {
       pagination: {
         pageSize: 10,

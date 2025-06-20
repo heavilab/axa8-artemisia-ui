@@ -163,10 +163,6 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
     setMatchType(val);
     resetCheckStatus();
   }
-  function handleCondition() {
-    setCondition("");
-    resetCheckStatus();
-  }
 
   function handleSubmit() {
     if (!checked) return;
@@ -301,7 +297,7 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
             <Input
               className="w-full"
               value={condition}
-              onChange={handleCondition}
+              onChange={(e) => setCondition(e.target.value)}
             />
           </div>
           <div className="grid gap-2">
@@ -313,26 +309,32 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
             />
           </div>
         </div>
-        <DialogFooter className="flex justify-between">
-          {checkStatus === "checked" ? (
-            <Button
-              variant="secondary"
-              disabled
-              className="opacity-70 cursor-default"
-            >
-              <Check className="w-4 h-4 mr-1" /> Checked
-            </Button>
-          ) : (
-            <Button variant="secondary" onClick={handleCheck}>
-              Check
-            </Button>
-          )}
-          {checkStatus && checkStatus !== "checked" && (
-            <span className="text-destructive text-sm ml-2">{checkStatus}</span>
-          )}
-          <Button onClick={handleSubmit} disabled={!checked}>
-            Create
-          </Button>
+        <DialogFooter className="flex flex-col items-stretch gap-2">
+          <div className="flex flex-col w-full">
+            {checkStatus && checkStatus !== "checked" && (
+              <div className="w-full text-destructive text-sm mb-1 text-left">
+                {checkStatus}
+              </div>
+            )}
+            <div className="flex justify-between w-full">
+              {checkStatus === "checked" ? (
+                <Button
+                  variant="secondary"
+                  disabled
+                  className="opacity-70 cursor-default"
+                >
+                  <Check className="w-4 h-4 mr-1" /> Checked
+                </Button>
+              ) : (
+                <Button variant="secondary" onClick={handleCheck}>
+                  Check
+                </Button>
+              )}
+              <Button onClick={handleSubmit} disabled={!checked}>
+                Create
+              </Button>
+            </div>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

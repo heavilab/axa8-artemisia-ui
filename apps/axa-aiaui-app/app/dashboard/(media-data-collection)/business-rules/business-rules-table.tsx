@@ -41,6 +41,19 @@ export function BusinessRulesTable({
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
   );
+  const sorted = filtered.slice().sort((a, b) => {
+    const aDate = a.createdAt?.toDate
+      ? a.createdAt.toDate()
+      : a.createdAt instanceof Date
+      ? a.createdAt
+      : new Date(0);
+    const bDate = b.createdAt?.toDate
+      ? b.createdAt.toDate()
+      : b.createdAt instanceof Date
+      ? b.createdAt
+      : new Date(0);
+    return bDate.getTime() - aDate.getTime();
+  });
 
   const columns = useMemo(
     () =>
@@ -64,5 +77,5 @@ export function BusinessRulesTable({
     ]
   );
 
-  return <DataTable columns={columns} data={filtered} users={users} />;
+  return <DataTable columns={columns} data={sorted} users={users} />;
 }

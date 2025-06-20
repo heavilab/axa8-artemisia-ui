@@ -71,19 +71,22 @@ export default function SourceFieldMappingsPage() {
     );
 
     setActiveSetIds(uniqueSets);
-
-    if (uniqueSets.includes("main")) {
-      setSelectedTab("main");
-    } else {
-      setSelectedTab(
-        uniqueSets.includes("main") ? "main" : uniqueSets[0] || ""
-      );
-    }
   }, [user?.email]);
 
   useEffect(() => {
     fetchMappings();
   }, [fetchMappings]);
+
+  // Optionally, set default tab to 'main' only on initial mount
+  useEffect(() => {
+    if (
+      (!selectedTab || !activeSetIds.includes(selectedTab)) &&
+      activeSetIds.length > 0
+    ) {
+      setSelectedTab(activeSetIds.includes("main") ? "main" : activeSetIds[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSetIds]);
 
   const handleCreateDraft = async ({
     agency,
@@ -134,6 +137,7 @@ export default function SourceFieldMappingsPage() {
 
     // Refresh the mappings to show the new draft
     await fetchMappings();
+    setSelectedTab(newSetId);
   };
 
   return (

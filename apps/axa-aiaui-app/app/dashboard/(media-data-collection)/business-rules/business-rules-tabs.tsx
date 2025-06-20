@@ -6,7 +6,7 @@ import { BusinessRulesTable } from "./business-rules-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { BookUp, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import { NewRuleDialog } from "./new-rule-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -22,6 +22,7 @@ import { exportToCSV } from "@/lib/utils/csv";
 import { Combobox } from "@/components/ui/combobox";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { toast } from "sonner";
 
 interface UserProfile {
   email: string;
@@ -372,26 +373,12 @@ export function BusinessRulesTabs({
                   <NewRuleDialog onSubmit={handleCreateRule} agency={agency} />
                 )}
                 {!isMain && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8"
-                    onClick={async () => {
-                      const { publishDraftAsMain } = await import("./actions");
-                      // Use the first row for scope (all rows in a set have the same scope)
-                      const scope = rows[0];
-                      await publishDraftAsMain({
-                        draftSetId: setId,
-                        country: scope.country,
-                        entity: scope.entity,
-                        agency: scope.agency,
-                      });
-                      await onRefresh();
-                    }}
-                  >
-                    <BookUp className="w-4 h-4" />
-                    Publish as main
-                  </Button>
+                  <PublishDraftDialog
+                    setId={setId}
+                    rows={rows}
+                    onRefresh={onRefresh}
+                    mappings={mappings}
+                  />
                 )}
               </div>
             </div>
@@ -465,6 +452,116 @@ function DeleteDraftDialog({
             disabled={loading}
           >
             {loading ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function PublishDraftDialog({
+  setId,
+  rows,
+  onRefresh,
+  mappings,
+}: {
+  setId: string;
+  rows: BusinessRules[];
+  onRefresh: () => void | Promise<void>;
+  mappings: BusinessRules[];
+}) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const scope = rows[0] as BusinessRules | undefined;
+  // Find the main rule for this scope
+  let mainRule: BusinessRules | undefined = undefined;
+  if (scope) {
+    mainRule = (mappings || []).find(
+      (m) =>
+        m.status === "main" &&
+        m.country === scope.country &&
+        m.entity === scope.entity &&
+        m.agency === scope.agency
+    );
+  }
+  // Find the latest createdAt in the draft
+  const draftCreatedAt = rows.reduce(
+    (latest: Date | null, row: BusinessRules) => {
+      const d = row.createdAt?.toDate
+        ? row.createdAt.toDate()
+        : row.createdAt instanceof Date
+        ? row.createdAt
+        : null;
+      if (!d) return latest;
+      if (!latest || d > latest) return d;
+      return latest;
+    },
+    null
+  );
+  const mainPublishedAt = mainRule?.publishedAt?.toDate
+    ? mainRule.publishedAt.toDate()
+    : mainRule?.publishedAt instanceof Date
+    ? mainRule.publishedAt
+    : null;
+  const isOutOfDate =
+    mainPublishedAt && draftCreatedAt && draftCreatedAt < mainPublishedAt;
+  const handlePublish = async () => {
+    setLoading(true);
+    const { publishDraftAsMain } = await import("./actions");
+    await publishDraftAsMain({
+      draftSetId: setId,
+      country: scope?.country || "",
+      entity: scope?.entity || "",
+      agency: scope?.agency || "",
+    });
+    await onRefresh();
+    setLoading(false);
+    setOpen(false);
+    const scopeString = scope
+      ? [scope.country, scope.entity, scope.agency].filter(Boolean).join("-")
+      : "-";
+    toast.success(`Draft published as main for scope: ${scopeString}`);
+  };
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="default" size="sm" className="h-8">
+          Publish
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Publish Draft as Main</DialogTitle>
+        </DialogHeader>
+        {isOutOfDate && (
+          <div className="mb-1 rounded-md border border-yellow-300 bg-yellow-50 px-4 py-2 text-sm text-yellow-900">
+            <b>Warning:</b> This draft was created before the current main was
+            published. You might be out of date!
+          </div>
+        )}
+        <div className="py-2 text-sm text-muted-foreground">
+          This will publish the current draft as the new <b>Main</b> version{" "}
+          <b>
+            for scope:{" "}
+            {scope
+              ? [scope.country, scope.entity, scope.agency]
+                  .filter(Boolean)
+                  .join("-")
+              : "-"}
+          </b>
+          . The previous main for this scope will be deprecated and all rules in
+          this draft will become the new main rules for this scope.
+        </div>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button variant="default" onClick={handlePublish} disabled={loading}>
+            {loading ? "Publishing..." : "Publish"}
           </Button>
         </DialogFooter>
       </DialogContent>

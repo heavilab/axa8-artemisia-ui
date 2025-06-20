@@ -57,8 +57,9 @@ async function importFromCSV(
                 setId: setId,
                 status: status,
                 createdAt: Timestamp.now(),
-                createdBy: "romain@heaviside.fr",
+                updatedAt: Timestamp.now(),
                 publishedAt: Timestamp.now(),
+                createdBy: "romain@heaviside.fr",
                 emptyFieldRatio: 0,
               }
             : entry;

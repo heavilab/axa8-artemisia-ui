@@ -8,7 +8,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Trash2, Filter as FilterIcon } from "lucide-react";
+import {
+  MoreVertical,
+  Filter as FilterIcon,
+  ChevronsUpDown,
+} from "lucide-react";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
@@ -23,6 +27,20 @@ import {
 } from "@/components/ui/dialog";
 import { EditRuleDialog } from "./new-rule-dialog";
 import { updateDraftRuleById } from "./actions";
+import {
+  SiGoogleanalytics,
+  SiGooglecampaignmanager360,
+  SiGoogledisplayandvideo360,
+  SiGoogleads,
+  SiFacebook,
+  SiSnapchat,
+  SiAmazon,
+  SiTiktok,
+  SiPinterest,
+  SiApple,
+} from "react-icons/si";
+import { FaLinkedin, FaGlobe } from "react-icons/fa";
+import { BiLogoBing } from "react-icons/bi";
 
 export function getColumns({
   isEditable,
@@ -60,35 +78,136 @@ export function getColumns({
     },
     {
       accessorKey: "dataSource",
-      header: () => (
-        <span className="flex items-center gap-2">
-          Data Source
-          {dataSourceFilterActive && (
-            <FilterIcon className="w-3 h-3 text-muted-foreground" />
-          )}
-        </span>
-      ),
+      enableSorting: true,
+      header: ({ column }) => {
+        return (
+          <button
+            className="flex items-center gap-2 select-none hover:underline"
+            onClick={column.getToggleSortingHandler()}
+            type="button"
+          >
+            Data Source
+            {dataSourceFilterActive && (
+              <FilterIcon className="w-3 h-3 text-muted-foreground" />
+            )}
+            <ChevronsUpDown className="w-3 h-3 ml-1 text-muted-foreground" />
+          </button>
+        );
+      },
+      cell: ({ row }) => {
+        const value = row.original.dataSource;
+        let Icon = null;
+        const iconProps: Record<string, unknown> = {
+          className: "w-4 h-4",
+          title: value,
+        };
+        switch (value) {
+          case "googleanalytics":
+            Icon = SiGoogleanalytics;
+            iconProps.color = "#E37400";
+            break;
+          case "piano":
+            Icon = FaGlobe;
+            break;
+          case "cm360":
+            Icon = SiGooglecampaignmanager360;
+            iconProps.color = "#1E8E3E";
+            break;
+          case "dv360":
+            Icon = SiGoogledisplayandvideo360;
+            iconProps.color = "#34A853";
+            break;
+          case "googleads":
+            Icon = SiGoogleads;
+            iconProps.color = "#4285F4";
+            break;
+          case "bingads":
+            Icon = BiLogoBing;
+            iconProps.color = "#000000";
+            break;
+          case "outbrain":
+            Icon = FaGlobe;
+            break;
+          case "facebookads":
+            Icon = SiFacebook;
+            iconProps.color = "#0866FF";
+            break;
+          case "linkedin":
+            Icon = FaLinkedin;
+            iconProps.color = "#000000";
+            break;
+          case "searchads":
+            Icon = SiApple;
+            iconProps.color = "#000000";
+            break;
+          case "xandr":
+            Icon = FaGlobe;
+            break;
+          case "snapchat":
+            Icon = SiSnapchat;
+            iconProps.color = "#FFFC00";
+            break;
+          case "amazon":
+            Icon = SiAmazon;
+            iconProps.color = "#FF9900";
+            break;
+          case "tiktok":
+            Icon = SiTiktok;
+            iconProps.color = "#000000";
+            break;
+          case "thetradedesk":
+            Icon = FaGlobe;
+            break;
+          case "pinterest":
+            Icon = SiPinterest;
+            iconProps.color = "#BD081C";
+            break;
+          case "teads":
+            Icon = FaGlobe;
+            break;
+          default:
+            Icon = FaGlobe;
+        }
+        return (
+          <span className="flex items-center gap-2">
+            {Icon && <Icon {...iconProps} />}
+            <span>{value}</span>
+          </span>
+        );
+      },
     },
     {
       accessorKey: "field",
-      header: () => (
-        <span className="flex items-center gap-2">
+      enableSorting: true,
+      header: ({ column }) => (
+        <button
+          className="flex items-center gap-2 select-none hover:underline"
+          onClick={column.getToggleSortingHandler()}
+          type="button"
+        >
           Field
           {fieldFilterActive && (
             <FilterIcon className="w-3 h-3 text-muted-foreground" />
           )}
-        </span>
+          <ChevronsUpDown className="w-3 h-3 ml-1 text-muted-foreground" />
+        </button>
       ),
     },
     {
       accessorKey: "targetField",
-      header: () => (
-        <span className="flex items-center gap-2">
+      enableSorting: true,
+      header: ({ column }) => (
+        <button
+          className="flex items-center gap-2 select-none hover:underline"
+          onClick={column.getToggleSortingHandler()}
+          type="button"
+        >
           Target Field
           {targetFieldFilterActive && (
             <FilterIcon className="w-3 h-3 text-muted-foreground" />
           )}
-        </span>
+          <ChevronsUpDown className="w-3 h-3 ml-1 text-muted-foreground" />
+        </button>
       ),
     },
     {
@@ -103,7 +222,14 @@ export function getColumns({
       ),
     },
     { accessorKey: "condition", header: "Condition" },
-    { accessorKey: "results", header: "Results" },
+    {
+      accessorKey: "results",
+      header: "Results",
+      cell: ({ row }) => {
+        const value = row.original.results || "";
+        return value.length > 20 ? value.slice(0, 20) + "..." : value;
+      },
+    },
   ];
 
   if (!isEditable) return base;
@@ -174,7 +300,6 @@ export function getColumns({
               onClick={() => setConfirmOpen(true)}
               className="text-destructive focus:text-destructive"
             >
-              <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
