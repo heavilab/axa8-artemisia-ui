@@ -1,15 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { NodeMappings } from "@/schemas/firestore";
 import { NodeMappingsTabs } from "./node-mappings-tabs";
 import { CreateDraftDialog } from "./create-draft-dialog";
-import {
-  collection as fbCollection,
-  getDocs as fbGetDocs,
-} from "firebase/firestore";
+import { useUser } from "@/lib/hooks/use-user";
 
 export default function NodeMappingsPage() {
   const [nodeMappings, setNodeMappings] = useState<NodeMappings[]>([]);
@@ -17,6 +14,9 @@ export default function NodeMappingsPage() {
   const [users, setUsers] = useState<
     { email: string; firstName?: string; lastName?: string }[]
   >([]);
+  const { user, loading: userLoading } = useUser();
+  const [profile, setProfile] = useState<{ role: string } | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   const fetchNodeMappings = async () => {
     try {
@@ -40,7 +40,7 @@ export default function NodeMappingsPage() {
 
   useEffect(() => {
     async function fetchUsers() {
-      const snapshot = await fbGetDocs(fbCollection(db, "users"));
+      const snapshot = await getDocs(collection(db, "users"));
       setUsers(
         snapshot.docs.map(
           (doc) =>
@@ -56,10 +56,29 @@ export default function NodeMappingsPage() {
   }, []);
 
   useEffect(() => {
+    async function fetchProfile() {
+      if (user?.email) {
+        const q = query(
+          collection(db, "users"),
+          where("email", "==", user.email)
+        );
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          setProfile(snapshot.docs[0].data() as { role: string });
+        }
+      }
+      setProfileLoading(false);
+    }
+    if (!userLoading) {
+      fetchProfile();
+    }
+  }, [user, userLoading]);
+
+  useEffect(() => {
     fetchNodeMappings();
   }, []);
 
-  if (loading) {
+  if (loading || userLoading || profileLoading) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
@@ -73,13 +92,16 @@ export default function NodeMappingsPage() {
     <div className="p-6 space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">Node Mappings</h1>
-        <CreateDraftDialog onRefresh={fetchNodeMappings} />
+        {profile?.role !== "Readonly" && (
+          <CreateDraftDialog onRefresh={fetchNodeMappings} />
+        )}
       </div>
 
       <NodeMappingsTabs
         nodeMappings={nodeMappings}
         onRefresh={fetchNodeMappings}
         users={users}
+        userRole={profile?.role}
       />
     </div>
   );

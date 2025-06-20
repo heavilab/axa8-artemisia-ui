@@ -22,6 +22,7 @@ export default function SourceFieldMappingsPage() {
   const [users, setUsers] = useState<
     { email: string; firstName?: string; lastName?: string }[]
   >([]);
+  const [profile, setProfile] = useState<{ role: string } | null>(null);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -39,6 +40,24 @@ export default function SourceFieldMappingsPage() {
     }
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      if (user?.email) {
+        const q = query(
+          collection(db, "users"),
+          where("email", "==", user.email)
+        );
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          setProfile(snapshot.docs[0].data() as { role: string });
+        }
+      }
+    }
+    if (user?.email) {
+      fetchProfile();
+    }
+  }, [user?.email]);
 
   const fetchMappings = useCallback(async () => {
     const q = query(collection(db, "businessRules"));
@@ -144,10 +163,12 @@ export default function SourceFieldMappingsPage() {
     <div className="p-6 space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">Business Rules</h1>
-        <CreateDraftDialog
-          onCreate={handleCreateDraft}
-          onRefresh={fetchMappings}
-        />
+        {profile?.role !== "Readonly" && (
+          <CreateDraftDialog
+            onCreate={handleCreateDraft}
+            onRefresh={fetchMappings}
+          />
+        )}
       </div>
 
       <BusinessRulesTabs

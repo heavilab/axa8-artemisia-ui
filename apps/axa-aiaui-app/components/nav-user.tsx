@@ -13,6 +13,9 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useEffect, useState } from "react";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -44,6 +47,25 @@ export function NavUser({
   const { isMobile } = useSidebar();
   const { setTheme } = useTheme();
   const router = useRouter();
+
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchRole() {
+      if (user?.email) {
+        const q = query(
+          collection(db, "users"),
+          where("email", "==", user.email)
+        );
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          const data = snapshot.docs[0].data() as { role?: string };
+          setRole(data.role || null);
+        }
+      }
+    }
+    fetchRole();
+  }, [user?.email]);
 
   const handleLogout = async () => {
     try {
@@ -103,15 +125,17 @@ export function NavUser({
                   <span>Account</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link
-                  href="/dashboard/admin"
-                  className="flex items-center gap-2 w-full"
-                >
-                  <ShieldCheck className="size-4" />
-                  <span>Admin</span>
-                </Link>
-              </DropdownMenuItem>
+              {role === "Admin" && (
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link
+                    href="/dashboard/admin"
+                    className="flex items-center gap-2 w-full"
+                  >
+                    <ShieldCheck className="size-4" />
+                    <span>Admin</span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Theme</DropdownMenuLabel>

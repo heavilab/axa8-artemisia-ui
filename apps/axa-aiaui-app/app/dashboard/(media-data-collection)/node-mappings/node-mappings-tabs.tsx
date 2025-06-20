@@ -38,12 +38,14 @@ interface Props {
   nodeMappings: NodeMappings[];
   onRefresh: () => void | Promise<void>;
   users?: UserProfile[];
+  userRole?: string;
 }
 
 export function NodeMappingsTabs({
   nodeMappings,
   onRefresh,
   users = [],
+  userRole,
 }: Props) {
   const [selectedTab, setSelectedTab] = useState<string>("main");
   const [searchQuery, setSearchQuery] = useState("");
@@ -143,7 +145,7 @@ export function NodeMappingsTabs({
         </TabsContent>
       ))}
 
-      {draftDatasetIds.length === 0 && (
+      {draftDatasetIds.length === 0 && userRole !== "Readonly" && (
         <TabsContent value="drafts" className="space-y-4">
           <div className="flex items-center justify-end">
             <CreateDraftDialog onRefresh={onRefresh} />
