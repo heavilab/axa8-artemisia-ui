@@ -40,6 +40,7 @@ import {
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
+import { useUser } from "@/lib/hooks/use-user";
 
 type User = {
   email: string;
@@ -59,6 +60,7 @@ export default function AccountPage() {
   const [pendingRole, setPendingRole] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const { user: currentUser } = useUser();
 
   useEffect(() => {
     async function fetchUsers() {
@@ -174,18 +176,22 @@ export default function AccountPage() {
                     <DropdownMenuItem onClick={() => openEdit(user)}>
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => openRole(user)}>
-                      Manage Access
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive"
-                      onClick={() => {
-                        setUserToDelete(user);
-                        setDeleteDialogOpen(true);
-                      }}
-                    >
-                      Delete
-                    </DropdownMenuItem>
+                    {currentUser?.email !== user.email && (
+                      <>
+                        <DropdownMenuItem onClick={() => openRole(user)}>
+                          Manage Access
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => {
+                            setUserToDelete(user);
+                            setDeleteDialogOpen(true);
+                          }}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
