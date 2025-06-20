@@ -72,15 +72,12 @@ export async function publishDraftAsMain({
     ...doc.data(),
   }));
 
-  // 3. Copy all data on other scopes than the current scope in the current draft into the draft
-  //    (i.e., for all rules in the draft set that are NOT for the current country/entity/agency, duplicate them into the draft set)
-  const otherScopeDraftRules = draftRules.filter((rule) => {
+  // 3. Copy all main rules for other scopes (not the current scope) into the draft set as draft rules
+  const otherScopeMainRules = mainRules.filter((rule) => {
     const r = rule as Record<string, unknown>;
     return r.country !== country || r.entity !== entity || r.agency !== agency;
   });
-  // No-op if there are no other-scope rules, but if there are, duplicate them into the draft set
-  for (const rule of otherScopeDraftRules) {
-    // Duplicate the rule into the draft set (with a new doc)
+  for (const rule of otherScopeMainRules) {
     if (typeof rule === "object" && rule !== null) {
       const data = Object.fromEntries(
         Object.entries(rule).filter(([k]) => k !== "id")
