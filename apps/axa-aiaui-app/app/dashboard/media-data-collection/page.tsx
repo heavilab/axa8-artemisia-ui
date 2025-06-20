@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Page() {
   return (
@@ -14,14 +15,14 @@ export default function Page() {
       </section>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl">
-        <Card title="Business Rules" href="/dashboard/business-rules" />
-        <Card title="Node Mappings" disabled />
+        <MediaCard title="Business Rules" href="/dashboard/business-rules" />
+        <MediaCard title="Node Mappings" disabled />
       </div>
     </div>
   );
 }
 
-function Card({
+function MediaCard({
   title,
   href,
   disabled = false,
@@ -30,17 +31,27 @@ function Card({
   href?: string;
   disabled?: boolean;
 }) {
-  const baseStyle =
-    "rounded-xl border p-6 flex items-center justify-center text-lg font-semibold text-center min-h-[120px] transition-all duration-200";
-  const interactive =
-    "hover:shadow-md hover:bg-[#F9FAFB] hover:scale-[1.02] cursor-pointer";
-  const disabledStyle = "text-muted-foreground bg-muted cursor-not-allowed";
-
-  return disabled ? (
-    <div className={cn(baseStyle, disabledStyle)}>{title}</div>
-  ) : (
-    <Link href={href!} className={cn(baseStyle, interactive)}>
-      {title}
+  const cardComponent = (
+    <Card
+      className={cn(
+        "min-h-[120px] h-full transition-all group",
+        !disabled && "cursor-pointer hover:shadow-lg hover:border-primary/40",
+        disabled && "pointer-events-none opacity-60"
+      )}
+    >
+      <CardContent className="flex h-full flex-col items-center justify-center p-6 text-center">
+        <span className="text-lg font-semibold group-hover:text-primary">
+          {title}
+        </span>
+      </CardContent>
+    </Card>
+  );
+  if (!href || disabled) {
+    return cardComponent;
+  }
+  return (
+    <Link href={href} className="block h-full">
+      {cardComponent}
     </Link>
   );
 }

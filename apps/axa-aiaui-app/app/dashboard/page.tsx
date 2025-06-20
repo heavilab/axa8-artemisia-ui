@@ -80,26 +80,45 @@ function HomeCard({
   href?: string;
   disabled?: boolean;
 }) {
-  return (
+  const isExternal = href?.startsWith("http");
+
+  const cardComponent = (
     <Card
       className={cn(
-        "min-h-[120px] flex items-center justify-center text-lg font-semibold text-center transition-all duration-200",
-        !disabled &&
-          "hover:shadow-md hover:bg-muted hover:scale-[1.02] cursor-pointer",
-        disabled && "text-muted-foreground bg-muted"
+        "min-h-[120px] h-full transition-all group",
+        !disabled && "cursor-pointer hover:shadow-lg hover:border-primary/40",
+        disabled && "pointer-events-none opacity-60"
       )}
     >
-      {disabled ? (
-        <span>{title}</span>
-      ) : (
-        <Link
-          href={href!}
-          className="w-full h-full flex items-center justify-center"
-        >
+      <CardContent className="flex h-full flex-col items-center justify-center p-6 text-center">
+        <span className="text-lg font-semibold group-hover:text-primary">
           {title}
-        </Link>
-      )}
+        </span>
+      </CardContent>
     </Card>
+  );
+
+  if (!href || disabled) {
+    return cardComponent;
+  }
+
+  if (isExternal) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block h-full"
+      >
+        {cardComponent}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className="block h-full">
+      {cardComponent}
+    </Link>
   );
 }
 
