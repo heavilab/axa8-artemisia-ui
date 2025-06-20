@@ -30,6 +30,7 @@ export function NavMain({
     items?: {
       title: string;
       url: string;
+      isActive?: boolean;
       isPendingFeature?: boolean;
     }[];
   }[];
@@ -43,7 +44,7 @@ export function NavMain({
             <Collapsible
               key={item.title}
               asChild
-              defaultOpen={item.isActive}
+              defaultOpen={true}
               className="group/collapsible"
             >
               <SidebarMenuItem>
@@ -63,6 +64,7 @@ export function NavMain({
                             href={subItem.isPendingFeature ? "#" : subItem.url}
                             className={cn(
                               "flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors",
+                              subItem.isActive && "bg-muted font-medium",
                               subItem.isPendingFeature
                                 ? "text-muted-foreground cursor-default hover:bg-transparent"
                                 : "hover:bg-muted"

@@ -18,6 +18,7 @@ const seedConfigs: Record<string, { enrich?: boolean }> = {
   countries: {}, // regular load
   users: {}, // regular load
   businessRules: { enrich: true }, // requires enrichment
+  nodeMappings: {}, // regular load
 };
 
 async function clearCollection(collectionName: string) {
@@ -36,6 +37,8 @@ async function importFromCSV(
   const fileName =
     collectionName === "businessRules"
       ? "businessRules_cleaned.csv"
+      : collectionName === "nodeMappings"
+      ? "nodeMappings_cleaned.csv"
       : `${collectionName}.csv`;
   const filePath = path.join(__dirname, "data", fileName);
   const entries: Record<string, any>[] = [];
@@ -51,18 +54,29 @@ async function importFromCSV(
         for (const entry of entries) {
           const docRef = collectionRef.doc();
 
-          const enriched = enrich
-            ? {
-                ...entry,
-                setId: setId,
-                status: status,
-                createdAt: Timestamp.now(),
-                updatedAt: Timestamp.now(),
-                publishedAt: Timestamp.now(),
-                createdBy: "romain@heaviside.fr",
-                emptyFieldRatio: 0,
-              }
-            : entry;
+          let enriched = entry;
+          if (enrich) {
+            enriched = {
+              ...entry,
+              setId: setId,
+              status: status,
+              createdAt: Timestamp.now(),
+              updatedAt: Timestamp.now(),
+              publishedAt: Timestamp.now(),
+              createdBy: "romain@heaviside.fr",
+              emptyFieldRatio: 0,
+            };
+          } else if (collectionName === "nodeMappings") {
+            enriched = {
+              ...entry,
+              setId: setId,
+              status: status,
+              createdAt: Timestamp.now(),
+              updatedAt: Timestamp.now(),
+              publishedAt: Timestamp.now(),
+              createdBy: "romain@heaviside.fr",
+            };
+          }
 
           batch.set(docRef, enriched);
         }

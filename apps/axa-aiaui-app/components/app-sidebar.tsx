@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { FileBarChart, FolderGit2, DatabaseZap } from "lucide-react";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
@@ -20,36 +21,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const data = {
-  navMain: [
-    {
-      title: "Media Reporting",
-      url: "https://lookerstudio.google.com/u/0/reporting/70b7b2a7-8f4b-4a79-94e3-03f01f03b927/page/p_hsmk6prold",
-      icon: FileBarChart,
-    },
-    {
-      title: "Centralization Tools",
-      url: "#",
-      isActive: true,
-      icon: FolderGit2,
-      items: [{ title: "Countries", url: "/dashboard/countries" }],
-    },
-    {
-      title: "Media Data Collection",
-      url: "#",
-      isActive: true,
-      icon: DatabaseZap,
-      items: [
-        {
-          title: "Business Rules",
-          url: "/dashboard/business-rules",
-        },
-      ],
-    },
-  ],
-  navSecondary: [],
-};
-
 type Profile = {
   firstName: string;
   lastName: string;
@@ -60,6 +31,7 @@ type Profile = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useUser();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     async function fetchProfile() {
@@ -100,6 +72,44 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         avatar: "/avatars/axa.jpg",
       };
 
+  // Determine active navigation items based on current pathname
+  const navMain = [
+    {
+      title: "Media Reporting",
+      url: "https://lookerstudio.google.com/u/0/reporting/70b7b2a7-8f4b-4a79-94e3-03f01f03b927/page/p_hsmk6prold",
+      icon: FileBarChart,
+    },
+    {
+      title: "Centralization Tools",
+      url: "#",
+      icon: FolderGit2,
+      items: [
+        {
+          title: "Countries",
+          url: "/dashboard/countries",
+          isActive: pathname === "/dashboard/countries",
+        },
+      ],
+    },
+    {
+      title: "Media Data Collection",
+      url: "#",
+      icon: DatabaseZap,
+      items: [
+        {
+          title: "Business Rules",
+          url: "/dashboard/business-rules",
+          isActive: pathname === "/dashboard/business-rules",
+        },
+        {
+          title: "Node Mappings",
+          url: "/dashboard/node-mappings",
+          isActive: pathname === "/dashboard/node-mappings",
+        },
+      ],
+    },
+  ];
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -125,7 +135,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={navUser} />

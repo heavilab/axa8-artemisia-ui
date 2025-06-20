@@ -27,20 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { EditRuleDialog } from "./new-rule-dialog";
 import { updateDraftRuleById } from "./actions";
-import {
-  SiGoogleanalytics,
-  SiGooglecampaignmanager360,
-  SiGoogledisplayandvideo360,
-  SiGoogleads,
-  SiFacebook,
-  SiSnapchat,
-  SiAmazon,
-  SiTiktok,
-  SiPinterest,
-  SiApple,
-} from "react-icons/si";
-import { FaLinkedin, FaGlobe } from "react-icons/fa";
-import { BiLogoBing } from "react-icons/bi";
+import { getDataSourceIcon } from "@/lib/utils/icon-utils";
 
 export function getColumns({
   isEditable,
@@ -96,81 +83,10 @@ export function getColumns({
       },
       cell: ({ row }) => {
         const value = row.original.dataSource;
-        let Icon = null;
-        const iconProps: Record<string, unknown> = {
-          className: "w-4 h-4",
-          title: value,
-        };
-        switch (value) {
-          case "googleanalytics":
-            Icon = SiGoogleanalytics;
-            iconProps.color = "#E37400";
-            break;
-          case "piano":
-            Icon = FaGlobe;
-            break;
-          case "cm360":
-            Icon = SiGooglecampaignmanager360;
-            iconProps.color = "#1E8E3E";
-            break;
-          case "dv360":
-            Icon = SiGoogledisplayandvideo360;
-            iconProps.color = "#34A853";
-            break;
-          case "googleads":
-            Icon = SiGoogleads;
-            iconProps.color = "#4285F4";
-            break;
-          case "bingads":
-            Icon = BiLogoBing;
-            iconProps.color = "#000000";
-            break;
-          case "outbrain":
-            Icon = FaGlobe;
-            break;
-          case "facebookads":
-            Icon = SiFacebook;
-            iconProps.color = "#0866FF";
-            break;
-          case "linkedin":
-            Icon = FaLinkedin;
-            iconProps.color = "#000000";
-            break;
-          case "searchads":
-            Icon = SiApple;
-            iconProps.color = "#000000";
-            break;
-          case "xandr":
-            Icon = FaGlobe;
-            break;
-          case "snapchat":
-            Icon = SiSnapchat;
-            iconProps.color = "#FFFC00";
-            break;
-          case "amazon":
-            Icon = SiAmazon;
-            iconProps.color = "#FF9900";
-            break;
-          case "tiktok":
-            Icon = SiTiktok;
-            iconProps.color = "#000000";
-            break;
-          case "thetradedesk":
-            Icon = FaGlobe;
-            break;
-          case "pinterest":
-            Icon = SiPinterest;
-            iconProps.color = "#BD081C";
-            break;
-          case "teads":
-            Icon = FaGlobe;
-            break;
-          default:
-            Icon = FaGlobe;
-        }
+        const { Icon, iconProps } = getDataSourceIcon(value);
         return (
           <span className="flex items-center gap-2">
-            {Icon && <Icon {...iconProps} />}
+            <Icon {...iconProps} />
             <span>{value}</span>
           </span>
         );

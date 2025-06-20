@@ -16,7 +16,7 @@ export default function Page() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl">
         <MediaCard title="Business Rules" href="/dashboard/business-rules" />
-        <MediaCard title="Node Mappings" disabled />
+        <MediaCard title="Node Mappings" href="/dashboard/node-mappings" />
       </div>
     </div>
   );

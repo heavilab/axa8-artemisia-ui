@@ -20,7 +20,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { timeAgo } from "@/lib/utils";
 import { useState } from "react";
-import { BusinessRules } from "@/schemas/firestore";
 
 interface UserProfile {
   email: string;
@@ -28,17 +27,17 @@ interface UserProfile {
   lastName?: string;
 }
 
-interface DataTableProps<TData> {
+interface DataTableProps<
+  TData extends { createdAt?: any; updatedAt?: any; createdBy?: string }
+> {
   columns: ColumnDef<TData>[];
   data: TData[];
   users?: UserProfile[];
 }
 
-export function DataTable({
-  columns,
-  data,
-  users = [],
-}: DataTableProps<BusinessRules>) {
+export function DataTable<
+  TData extends { createdAt?: any; updatedAt?: any; createdBy?: string }
+>({ columns, data, users = [] }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
     data,

@@ -51,3 +51,21 @@ export const countrySchema = z.object({
 });
 
 export type Country = z.infer<typeof countrySchema>;
+
+// Node Mappings Schema
+export const nodeMappingsSchema = z.object({
+  dataSource: z.string(),
+  field: z.string(),
+  targetField: z.string(),
+  matchType: z.string(),
+  status: z.enum(["main", "deprecated", "draft"]),
+  createdAt: z.instanceof(Timestamp),
+  createdBy: z.string(),
+  publishedAt: z.instanceof(Timestamp).optional(),
+  updatedAt: z.instanceof(Timestamp).optional(),
+  datasetId: z.string().optional(),
+  // Add other fields as needed based on the CSV structure
+  id: z.string().optional(),
+});
+
+export type NodeMappings = z.infer<typeof nodeMappingsSchema>;
