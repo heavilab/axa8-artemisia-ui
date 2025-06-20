@@ -223,7 +223,10 @@ function DeleteDraftDialog({
         <DialogHeader>
           <DialogTitle>Delete Draft</DialogTitle>
         </DialogHeader>
-        <p>Are you sure you want to delete all rules for draft "{setId}"?</p>
+        <p>
+          Are you sure you want to delete all rules for draft &quot;{setId}
+          &quot;?
+        </p>
         <DialogFooter>
           <DialogClose asChild disabled={loading}>
             <Button variant="outline" disabled={loading}>
@@ -243,9 +246,14 @@ function DeleteDraftDialog({
   );
 }
 
-function dateFromAny(val: any): Date {
-  if (val && typeof val.toDate === "function") {
-    return val.toDate();
+function dateFromAny(val: unknown): Date {
+  if (
+    val &&
+    typeof val === "object" &&
+    "toDate" in val &&
+    typeof (val as Record<string, unknown>).toDate === "function"
+  ) {
+    return (val as { toDate: () => Date }).toDate();
   }
   if (val instanceof Date) {
     return val;

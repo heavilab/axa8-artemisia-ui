@@ -37,8 +37,6 @@ export function getColumns({
     {
       id: "actions",
       cell: ({ row }) => {
-        const businessRule = row.original;
-
         const handleDelete = async () => {
           try {
             // Get the document ID from the row

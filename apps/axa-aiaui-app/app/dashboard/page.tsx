@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils"; // helper to join classnames
 
 export default function Page() {

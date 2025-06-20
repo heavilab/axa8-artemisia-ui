@@ -1,7 +1,7 @@
 // app/dashboard/(media-data-collection)/source-field-mappings/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { BusinessRules } from "@/schemas/firestore";
 import { db } from "@/lib/firebase";
 import { collection, query, getDocs, where, addDoc } from "firebase/firestore";
@@ -14,9 +14,9 @@ export default function SourceFieldMappingsPage() {
   const [mappings, setMappings] = useState<BusinessRules[]>([]);
   const [activeSetIds, setActiveSetIds] = useState<string[]>([]);
   const [selectedTab, setSelectedTab] = useState<string | null>("main");
-  const { user, loading } = useUser();
+  const { user } = useUser();
 
-  async function fetchMappings() {
+  const fetchMappings = useCallback(async () => {
     const q = query(collection(db, "businessRules"));
     const snapshot = await getDocs(q);
     const all = snapshot.docs.map((doc) => doc.data() as BusinessRules);
@@ -53,13 +53,11 @@ export default function SourceFieldMappingsPage() {
         uniqueSets.includes("main") ? "main" : uniqueSets[0] || ""
       );
     }
-  }
+  }, [user?.email]);
 
   useEffect(() => {
-    if (!loading && user) {
-      fetchMappings();
-    }
-  }, [user, loading]);
+    fetchMappings();
+  }, [fetchMappings]);
 
   const handleCreateDraft = async ({
     agency,

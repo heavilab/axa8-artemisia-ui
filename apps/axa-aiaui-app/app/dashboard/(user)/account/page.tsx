@@ -8,9 +8,15 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+type Profile = {
+  firstName: string;
+  lastName: string;
+  role: string;
+};
+
 export default function AccountPage() {
   const { user, loading } = useUser();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -21,7 +27,7 @@ export default function AccountPage() {
         );
         const snapshot = await getDocs(q);
         if (!snapshot.empty) {
-          setProfile(snapshot.docs[0].data());
+          setProfile(snapshot.docs[0].data() as Profile);
         }
       }
     }

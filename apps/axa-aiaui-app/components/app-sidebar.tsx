@@ -50,9 +50,16 @@ const data = {
   navSecondary: [],
 };
 
+type Profile = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+};
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user, loading } = useUser();
-  const [profile, setProfile] = useState<any>(null);
+  const { user } = useUser();
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -63,7 +70,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         );
         const snapshot = await getDocs(q);
         if (!snapshot.empty) {
-          setProfile(snapshot.docs[0].data());
+          setProfile(snapshot.docs[0].data() as Profile);
         }
       }
     }
