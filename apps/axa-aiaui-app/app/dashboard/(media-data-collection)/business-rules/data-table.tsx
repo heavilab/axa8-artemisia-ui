@@ -16,13 +16,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { timeAgo } from "@/lib/utils";
+
+interface UserProfile {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+}
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
+  users?: UserProfile[];
 }
 
-export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
+export function DataTable<
+  TData extends { updatedAt?: any; createdAt: any; createdBy?: string }
+>({ columns, data, users = [] }: DataTableProps<TData>) {
   const table = useReactTable({
     data,
     columns,
@@ -34,6 +44,38 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
       },
     },
   });
+
+  // Find the most recently updated row
+  let lastUpdated: Date | null = null;
+  let lastUpdatedBy: string | null = null;
+  let lastUpdatedByEmail: string | null = null;
+  for (const row of data) {
+    const updated = row.updatedAt?.toDate
+      ? row.updatedAt.toDate()
+      : row.updatedAt instanceof Date
+      ? row.updatedAt
+      : null;
+    const created = row.createdAt?.toDate
+      ? row.createdAt.toDate()
+      : row.createdAt instanceof Date
+      ? row.createdAt
+      : null;
+    const candidate = updated || created;
+    if (!candidate) continue;
+    if (!lastUpdated || candidate > lastUpdated) {
+      lastUpdated = candidate;
+      lastUpdatedByEmail = row.createdBy || null;
+    }
+  }
+
+  if (lastUpdatedByEmail) {
+    const user = users.find((u) => u.email === lastUpdatedByEmail);
+    if (user) {
+      lastUpdatedBy = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    } else {
+      lastUpdatedBy = lastUpdatedByEmail;
+    }
+  }
 
   return (
     <div>
@@ -67,9 +109,17 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
         </Table>
       </div>
       <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="text-sm text-muted-foreground">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
+        <div className="flex flex-row items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </span>
+          {lastUpdated && lastUpdatedBy && (
+            <span className="flex items-center text-xs text-muted-foreground">
+              <span className="mr-2">•</span>Last updated by {lastUpdatedBy}{" "}
+              {timeAgo(lastUpdated)}
+            </span>
+          )}
         </div>
         <div className="space-x-2">
           <Button

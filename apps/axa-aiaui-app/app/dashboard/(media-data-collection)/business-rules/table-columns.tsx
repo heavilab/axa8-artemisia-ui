@@ -47,7 +47,9 @@ export function getColumns({
       header: () => (
         <span className="flex items-center gap-2">
           Scope
-          {scopeFilterActive && <FilterIcon className="w-3 h-3 text-primary" />}
+          {scopeFilterActive && (
+            <FilterIcon className="w-3 h-3 text-muted-foreground" />
+          )}
         </span>
       ),
       cell: ({ row }) => {
@@ -62,7 +64,7 @@ export function getColumns({
         <span className="flex items-center gap-2">
           Data Source
           {dataSourceFilterActive && (
-            <FilterIcon className="w-3 h-3 text-primary" />
+            <FilterIcon className="w-3 h-3 text-muted-foreground" />
           )}
         </span>
       ),
@@ -72,7 +74,9 @@ export function getColumns({
       header: () => (
         <span className="flex items-center gap-2">
           Field
-          {fieldFilterActive && <FilterIcon className="w-3 h-3 text-primary" />}
+          {fieldFilterActive && (
+            <FilterIcon className="w-3 h-3 text-muted-foreground" />
+          )}
         </span>
       ),
     },
@@ -82,7 +86,7 @@ export function getColumns({
         <span className="flex items-center gap-2">
           Target Field
           {targetFieldFilterActive && (
-            <FilterIcon className="w-3 h-3 text-primary" />
+            <FilterIcon className="w-3 h-3 text-muted-foreground" />
           )}
         </span>
       ),
@@ -93,7 +97,7 @@ export function getColumns({
         <span className="flex items-center gap-2">
           Match Type
           {matchTypeFilterActive && (
-            <FilterIcon className="w-3 h-3 text-primary" />
+            <FilterIcon className="w-3 h-3 text-muted-foreground" />
           )}
         </span>
       ),

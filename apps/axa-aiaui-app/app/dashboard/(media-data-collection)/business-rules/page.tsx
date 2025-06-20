@@ -9,12 +9,36 @@ import { CreateDraftDialog } from "./create-draft-dialog";
 import { BusinessRulesTabs } from "./business-rules-tabs";
 import { uniqueNamesGenerator, colors, animals } from "unique-names-generator";
 import { useUser } from "@/lib/hooks/use-user";
+import {
+  collection as fbCollection,
+  getDocs as fbGetDocs,
+} from "firebase/firestore";
 
 export default function SourceFieldMappingsPage() {
   const [mappings, setMappings] = useState<BusinessRules[]>([]);
   const [activeSetIds, setActiveSetIds] = useState<string[]>([]);
   const [selectedTab, setSelectedTab] = useState<string | null>("main");
   const { user } = useUser();
+  const [users, setUsers] = useState<
+    { email: string; firstName?: string; lastName?: string }[]
+  >([]);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      const snapshot = await fbGetDocs(fbCollection(db, "users"));
+      setUsers(
+        snapshot.docs.map(
+          (doc) =>
+            doc.data() as {
+              email: string;
+              firstName?: string;
+              lastName?: string;
+            }
+        )
+      );
+    }
+    fetchUsers();
+  }, []);
 
   const fetchMappings = useCallback(async () => {
     const q = query(collection(db, "businessRules"));
@@ -128,6 +152,7 @@ export default function SourceFieldMappingsPage() {
         onSelect={setSelectedTab}
         mappings={mappings}
         onRefresh={fetchMappings}
+        users={users}
       />
     </div>
   );

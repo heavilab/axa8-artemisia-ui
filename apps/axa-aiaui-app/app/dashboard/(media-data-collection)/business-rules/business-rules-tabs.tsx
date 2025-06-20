@@ -23,12 +23,19 @@ import { Combobox } from "@/components/ui/combobox";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
+interface UserProfile {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 interface Props {
   sets: string[];
   selected: string | null;
   onSelect: (val: string) => void;
   mappings: BusinessRules[];
   onRefresh: () => void | Promise<void>;
+  users?: UserProfile[];
 }
 
 export function BusinessRulesTabs({
@@ -37,6 +44,7 @@ export function BusinessRulesTabs({
   onSelect,
   mappings,
   onRefresh,
+  users = [],
 }: Props) {
   const [searchQueries, setSearchQueries] = useState<Record<string, string>>(
     {}
@@ -162,7 +170,7 @@ export function BusinessRulesTabs({
             draftsWithCreatedAt.sort((a, b) => {
               const aDate = dateFromAny(a.createdAt);
               const bDate = dateFromAny(b.createdAt);
-              return bDate.getTime() - aDate.getTime();
+              return aDate.getTime() - bDate.getTime();
             });
             return draftsWithCreatedAt.map(({ setId }) => {
               const sample = mappings.find((m) => m.setId === setId);
@@ -398,6 +406,7 @@ export function BusinessRulesTabs({
               fieldFilterActive={!!field}
               targetFieldFilterActive={!!targetField}
               matchTypeFilterActive={!!matchType}
+              users={users}
             />
           </TabsContent>
         );

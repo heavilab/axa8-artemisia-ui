@@ -4,6 +4,12 @@ import { DataTable } from "./data-table";
 import { getColumns } from "./table-columns";
 import { useMemo } from "react";
 
+interface UserProfile {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 interface Props {
   data: BusinessRules[];
   isEditable: boolean;
@@ -14,6 +20,7 @@ interface Props {
   fieldFilterActive?: boolean;
   targetFieldFilterActive?: boolean;
   matchTypeFilterActive?: boolean;
+  users?: UserProfile[];
 }
 
 export function BusinessRulesTable({
@@ -26,6 +33,7 @@ export function BusinessRulesTable({
   fieldFilterActive = false,
   targetFieldFilterActive = false,
   matchTypeFilterActive = false,
+  users = [],
 }: Props) {
   const filtered = data.filter((row) =>
     Object.values(row)
@@ -56,5 +64,5 @@ export function BusinessRulesTable({
     ]
   );
 
-  return <DataTable columns={columns} data={filtered} />;
+  return <DataTable columns={columns} data={filtered} users={users} />;
 }

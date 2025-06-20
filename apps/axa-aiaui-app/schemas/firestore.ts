@@ -36,6 +36,7 @@ export const businessRulesSchema = z.object({
   condition: z.string().optional(),
   results: z.string().optional(),
   id: z.string().optional(),
+  updatedAt: z.instanceof(Timestamp).optional(),
 });
 
 export type BusinessRules = z.infer<typeof businessRulesSchema>;
