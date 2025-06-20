@@ -4,7 +4,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { BusinessRules } from "@/schemas/firestore";
 import { BusinessRulesTable } from "./business-rules-table";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Filter } from "lucide-react";
 import { NewRuleDialog } from "./new-rule-dialog";
@@ -23,6 +22,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
+import { Search } from "@/components/ui/search";
 
 interface UserProfile {
   email: string;
@@ -261,14 +261,13 @@ export function BusinessRulesTabs({
           <TabsContent key={setId} value={setId} className="mt-4 space-y-4">
             <div className="flex justify-between items-center gap-4 flex-wrap">
               <div className="flex gap-2 mr-auto">
-                <Input
-                  type="text"
+                <Search
                   placeholder="Search..."
                   value={searchQuery}
-                  onChange={(e) =>
+                  onChange={(value) =>
                     setSearchQueries((prev) => ({
                       ...prev,
-                      [setId]: e.target.value,
+                      [setId]: value,
                     }))
                   }
                   className="h-8 w-48"

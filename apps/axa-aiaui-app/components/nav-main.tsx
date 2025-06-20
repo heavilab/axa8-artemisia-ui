@@ -27,11 +27,13 @@ export function NavMain({
     url: string;
     icon?: LucideIcon;
     isActive?: boolean;
+    target?: string;
     items?: {
       title: string;
       url: string;
       isActive?: boolean;
       isPendingFeature?: boolean;
+      target?: string;
     }[];
   }[];
 }) {
@@ -62,6 +64,12 @@ export function NavMain({
                         <SidebarMenuSubButton asChild>
                           <a
                             href={subItem.isPendingFeature ? "#" : subItem.url}
+                            target={subItem.target}
+                            rel={
+                              subItem.target === "_blank"
+                                ? "noopener noreferrer"
+                                : undefined
+                            }
                             className={cn(
                               "flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors",
                               subItem.isActive && "bg-muted font-medium",
@@ -89,7 +97,14 @@ export function NavMain({
           ) : (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url} className="flex items-center gap-2">
+                <a
+                  href={item.url}
+                  target={item.target}
+                  rel={
+                    item.target === "_blank" ? "noopener noreferrer" : undefined
+                  }
+                  className="flex items-center gap-2"
+                >
                   {item.icon && <item.icon className="size-4" />}
                   <span>{item.title}</span>
                 </a>

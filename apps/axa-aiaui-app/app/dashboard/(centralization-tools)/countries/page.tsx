@@ -25,7 +25,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import Papa, { ParseResult } from "papaparse";
-import { Input } from "@/components/ui/input";
+import { Search } from "@/components/ui/search";
 import { useUser } from "@/lib/hooks/use-user";
 
 const REQUIRED_COLUMNS = ["country", "data_currency", "language"];
@@ -130,20 +130,6 @@ export default function Page() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Countries</h1>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => {
-              // Remove Firestore 'id' from each row before export
-              const exportData = data.map((row) => {
-                const copy = { ...row };
-                delete (copy as Partial<typeof copy>).id;
-                return copy;
-              });
-              exportToCSV(exportData, "countries");
-            }}
-          >
-            Download CSV
-          </Button>
           {profile?.role === "Admin" && (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
@@ -187,13 +173,24 @@ export default function Page() {
           )}
         </div>
       </div>
-      <div className="mb-2 max-w-xs">
-        <Input
-          type="text"
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex items-center gap-2">
+        <div className="flex-1 max-w-xs">
+          <Search placeholder="Search..." value={search} onChange={setSearch} />
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => {
+            // Remove Firestore 'id' from each row before export
+            const exportData = data.map((row) => {
+              const copy = { ...row };
+              delete (copy as Partial<typeof copy>).id;
+              return copy;
+            });
+            exportToCSV(exportData, "countries");
+          }}
+        >
+          Download CSV
+        </Button>
       </div>
       <DataTable
         columns={columns}

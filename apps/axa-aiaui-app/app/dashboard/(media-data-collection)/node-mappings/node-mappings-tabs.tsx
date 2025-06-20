@@ -114,7 +114,7 @@ export function NodeMappingsTabs({
       <TabsContent value="main" className="space-y-4">
         <div className="flex items-center gap-2">
           <Search
-            placeholder="Search node mappings..."
+            placeholder="Search..."
             value={searchQuery}
             onChange={setSearchQuery}
             className="w-64"
@@ -127,7 +127,7 @@ export function NodeMappingsTabs({
         <TabsContent key={datasetId} value={datasetId} className="space-y-4">
           <div className="flex items-center gap-2">
             <Search
-              placeholder="Search node mappings..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={setSearchQuery}
               className="w-64"
