@@ -163,7 +163,18 @@ export function BusinessRulesTabs({
                     variant="outline"
                     size="sm"
                     className="h-8"
-                    onClick={() => alert(`TODO: Add rule to ${setId}`)}
+                    onClick={async () => {
+                      const { publishDraftAsMain } = await import("./actions");
+                      // Use the first row for scope (all rows in a set have the same scope)
+                      const scope = rows[0];
+                      await publishDraftAsMain({
+                        draftSetId: setId,
+                        country: scope.country,
+                        entity: scope.entity,
+                        agency: scope.agency,
+                      });
+                      await onRefresh();
+                    }}
                   >
                     <BookUp className="w-4 h-4" />
                     Publish as main
