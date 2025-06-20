@@ -38,7 +38,7 @@ export function Combobox({
   return (
     <div className="space-y-1">
       {label && <div className="text-sm text-foreground">{label}</div>}
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={setOpen} modal={true}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -52,11 +52,12 @@ export function Combobox({
         </PopoverTrigger>
         <PopoverContent
           align="start"
-          className="w-[var(--radix-popover-trigger-width)] p-0"
+          className="w-[var(--radix-popover-trigger-width)] p-0 max-h-80 overflow-visible"
+          onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <Command>
             <CommandInput placeholder={`Search ${label?.toLowerCase()}...`} />
-            <CommandList>
+            <CommandList className="max-h-72 overflow-y-auto">
               <CommandEmpty>No option found.</CommandEmpty>
               <CommandGroup>
                 {options.map((option) => (

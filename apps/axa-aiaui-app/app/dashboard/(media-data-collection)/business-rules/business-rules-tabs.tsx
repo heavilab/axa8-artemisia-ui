@@ -199,6 +199,10 @@ export function BusinessRulesTabs({
         // Only allow scope filter for main tab
         const showScopeFilter = isMain;
 
+        const activeFilterCount = Object.values(tabFilters).filter(
+          (v) => v !== ""
+        ).length;
+
         // Apply filters
         if (showScopeFilter && scope) {
           rows = rows.filter(
@@ -274,6 +278,11 @@ export function BusinessRulesTabs({
                     >
                       <Filter className="w-4 h-4 mr-1" />
                       Filters
+                      {activeFilterCount > 0 && (
+                        <Badge variant="secondary" className="ml-2">
+                          {activeFilterCount}
+                        </Badge>
+                      )}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-xs">
