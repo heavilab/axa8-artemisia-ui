@@ -17,7 +17,6 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -103,11 +102,11 @@ export function getColumns({
 
   if (!isEditable) return base;
 
-  function ActionCell({ row }: { row: any }) {
+  function ActionCell({ row }: { row: unknown }) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const handleDelete = async () => {
       try {
-        const docId = row.original.id;
+        const docId = (row as { original: { id: string } }).original.id;
         await deleteDoc(doc(db, "businessRules", docId));
         toast.success("Business rule deleted successfully");
         if (onRefresh) {

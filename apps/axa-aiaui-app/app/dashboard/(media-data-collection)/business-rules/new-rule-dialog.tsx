@@ -154,8 +154,8 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
     setMatchType(val);
     resetCheckStatus();
   }
-  function handleCondition(e: React.ChangeEvent<HTMLInputElement>) {
-    setCondition(e.target.value);
+  function handleCondition() {
+    setCondition("");
     resetCheckStatus();
   }
 
@@ -198,7 +198,7 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
       let regexp;
       try {
         regexp = new RegExp(insideQuotes(results.trim()));
-      } catch (e) {
+      } catch {
         setCheckStatus("Invalid regexp in results");
         setChecked(false);
         return;

@@ -23,7 +23,6 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription,
-  DialogClose,
 } from "@/components/ui/dialog";
 import Papa, { ParseResult } from "papaparse";
 import { Input } from "@/components/ui/input";
@@ -39,7 +38,7 @@ export default function Page() {
     ok: boolean;
     message: string;
   }>(null);
-  const [parsedRows, setParsedRows] = useState<any[]>([]);
+  const [parsedRows, setParsedRows] = useState<unknown[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { user, loading: userLoading } = useUser();
@@ -92,11 +91,11 @@ export default function Page() {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      complete: (results: ParseResult<any>) => {
+      complete: (results: ParseResult<unknown>) => {
         const headers = results.meta.fields || [];
         const check = sanityCheck(headers);
         setSanityResult(check);
-        setParsedRows(results.data as any[]);
+        setParsedRows(results.data as unknown[]);
       },
     });
   }
@@ -109,9 +108,13 @@ export default function Page() {
     await Promise.all(deletions);
     // Add new countries
     for (const row of parsedRows) {
-      // Ignore 'id' column if present
-      const { id, ...rest } = row;
-      await addDoc(collection(db, "countries"), rest);
+      if (typeof row === "object" && row !== null && "id" in row) {
+        const rest = { ...(row as Record<string, unknown>) };
+        delete (rest as Partial<typeof rest>).id;
+        await addDoc(collection(db, "countries"), rest);
+      } else {
+        await addDoc(collection(db, "countries"), row);
+      }
     }
     setUploading(false);
     setDialogOpen(false);
@@ -131,7 +134,11 @@ export default function Page() {
             variant="outline"
             onClick={() => {
               // Remove Firestore 'id' from each row before export
-              const exportData = data.map(({ id, ...rest }) => rest);
+              const exportData = data.map((row) => {
+                const copy = { ...row };
+                delete (copy as Partial<typeof copy>).id;
+                return copy;
+              });
               exportToCSV(exportData, "countries");
             }}
           >

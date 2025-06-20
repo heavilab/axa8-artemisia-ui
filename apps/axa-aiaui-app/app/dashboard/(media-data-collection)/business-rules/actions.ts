@@ -52,7 +52,7 @@ export async function publishDraftAsMain({
   );
   const draftRules = draftSnapshot.docs.map((doc) => ({
     id: doc.id,
-    ...(doc.data() as any),
+    ...(doc.data() as Record<string, unknown>),
   }));
 
   // 2. Find all rules in the main set for the same country/entity/agency
@@ -72,22 +72,24 @@ export async function publishDraftAsMain({
 
   // 3. Copy all data on other scopes than the current scope in the current draft into the draft
   //    (i.e., for all rules in the draft set that are NOT for the current country/entity/agency, duplicate them into the draft set)
-  const otherScopeDraftRules = draftRules.filter(
-    (rule) =>
-      rule.country !== country ||
-      rule.entity !== entity ||
-      rule.agency !== agency
-  );
+  const otherScopeDraftRules = draftRules.filter((rule) => {
+    const r = rule as Record<string, unknown>;
+    return r.country !== country || r.entity !== entity || r.agency !== agency;
+  });
   // No-op if there are no other-scope rules, but if there are, duplicate them into the draft set
   for (const rule of otherScopeDraftRules) {
     // Duplicate the rule into the draft set (with a new doc)
-    const { id, ...data } = rule;
-    await addDoc(colRef, {
-      ...data,
-      setId: draftSetId,
-      status: "draft",
-      createdAt: Timestamp.now(),
-    });
+    if (typeof rule === "object" && rule !== null) {
+      const data = Object.fromEntries(
+        Object.entries(rule).filter(([k]) => k !== "id")
+      );
+      Object.assign(data, {
+        setId: draftSetId,
+        status: "draft",
+        createdAt: Timestamp.now(),
+      });
+      await addDoc(colRef, data);
+    }
   }
 
   // 4. Set the current main to deprecated

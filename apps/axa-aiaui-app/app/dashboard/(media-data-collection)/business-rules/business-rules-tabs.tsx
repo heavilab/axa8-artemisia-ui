@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/dialog";
 import { exportToCSV } from "@/lib/utils/csv";
 import { Combobox } from "@/components/ui/combobox";
-import { Filter as FilterIcon } from "lucide-react";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -44,11 +43,6 @@ export function BusinessRulesTabs({
   );
   // Filter state
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
-  const [dataSourceFilter, setDataSourceFilter] = useState<string>("");
-  const [fieldFilter, setFieldFilter] = useState<string>("");
-  const [targetFieldFilter, setTargetFieldFilter] = useState<string>("");
-  const [matchTypeFilter, setMatchTypeFilter] = useState<string>("");
-  const [scopeFilter, setScopeFilter] = useState<string>("");
 
   // Tab-specific filter state
   const [filters, setFilters] = useState<
@@ -99,8 +93,6 @@ export function BusinessRulesTabs({
   if (mappings[0] === undefined) return;
 
   const agency = mappings[0].agency;
-  const entity = mappings[0].entity;
-  const country = mappings[0].country;
 
   // Get all unique values for combobox options
   const allDataSources = Array.from(
@@ -130,15 +122,6 @@ export function BusinessRulesTabs({
     )
   );
   const scopeOptions = allScopes.map((v) => ({ value: v, label: v }));
-
-  // Count active filters
-  const activeFilterCount = [
-    scopeFilter,
-    dataSourceFilter,
-    fieldFilter,
-    targetFieldFilter,
-    matchTypeFilter,
-  ].filter(Boolean).length;
 
   return (
     <Tabs
@@ -239,20 +222,16 @@ export function BusinessRulesTabs({
         }
 
         const searchQuery = searchQueries[setId] || "";
-        const activeFilterCount = [
-          showScopeFilter ? scope : null,
-          dataSource,
-          field,
-          targetField,
-          matchType,
-        ].filter(Boolean).length;
 
         // Get draft context for new rule
         const draftContext = rows[0] || {};
-        const handleCreateRule = async (rule: any) => {
+        const handleCreateRule = async (rule: unknown) => {
+          // Type guard for rule object
+          if (typeof rule !== "object" || rule === null) return;
+          const r = rule as Record<string, unknown>;
           // Compose the new rule object
           const newRule = {
-            ...rule,
+            ...r,
             setId,
             country: draftContext.country,
             entity: draftContext.entity,
@@ -295,14 +274,6 @@ export function BusinessRulesTabs({
                     >
                       <Filter className="w-4 h-4 mr-1" />
                       Filters
-                      {activeFilterCount > 0 && (
-                        <Badge
-                          className="ml-2 px-1.5 py-0.5 text-xs text-primary"
-                          variant="secondary"
-                        >
-                          {activeFilterCount}
-                        </Badge>
-                      )}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-xs">
@@ -352,7 +323,6 @@ export function BusinessRulesTabs({
                       <Button
                         variant="secondary"
                         onClick={() => clearTabFilters(setId)}
-                        disabled={activeFilterCount === 0}
                       >
                         Clear
                       </Button>
@@ -367,10 +337,13 @@ export function BusinessRulesTabs({
                   size="sm"
                   className="h-8"
                   onClick={() => {
-                    const exportData = rows.map((row: any) => {
-                      const { id, ...rest } = row;
-                      return rest;
-                    });
+                    const exportData = rows.map(
+                      (row: Record<string, unknown>) => {
+                        const rest = { ...row };
+                        delete rest.id;
+                        return rest;
+                      }
+                    );
                     exportToCSV(exportData, `business_rules_${setId}`);
                   }}
                 >
