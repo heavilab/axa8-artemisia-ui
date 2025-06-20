@@ -23,8 +23,8 @@ import {
 const data = {
   navMain: [
     {
-      title: "Media Dashboard",
-      url: "#",
+      title: "Media Reporting",
+      url: "https://lookerstudio.google.com/u/0/reporting/70b7b2a7-8f4b-4a79-94e3-03f01f03b927/page/p_hsmk6prold",
       icon: FileBarChart,
     },
     {

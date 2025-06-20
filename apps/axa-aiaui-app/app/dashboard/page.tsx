@@ -17,13 +17,16 @@ export default function Page() {
       </section>
 
       <div className="grid grid-cols-2 gap-4 max-w-4xl">
-        <HomeCard title="Media reporting" href="/dashboard" />
         <HomeCard
-          title="Centralization tools"
+          title="Media Reporting"
+          href="https://lookerstudio.google.com/u/0/reporting/70b7b2a7-8f4b-4a79-94e3-03f01f03b927/page/p_hsmk6prold"
+        />
+        <HomeCard
+          title="Centralization Tools"
           href="/dashboard/centralization-tools"
         />
         <HomeCard
-          title="Media Data collection"
+          title="Media Data Collection"
           href="/dashboard/media-data-collection"
         />
         <HomeCard title="Services" disabled />
