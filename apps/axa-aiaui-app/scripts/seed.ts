@@ -33,7 +33,10 @@ async function importFromCSV(
   status = "main",
   setId = "0"
 ) {
-  const fileName = `${collectionName}.csv`;
+  const fileName =
+    collectionName === "businessRules"
+      ? "businessRules_cleaned.csv"
+      : `${collectionName}.csv`;
   const filePath = path.join(__dirname, "data", fileName);
   const entries: Record<string, any>[] = [];
 

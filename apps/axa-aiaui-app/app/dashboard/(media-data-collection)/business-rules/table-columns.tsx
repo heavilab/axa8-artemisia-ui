@@ -21,6 +21,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { EditRuleDialog } from "./new-rule-dialog";
+import { updateDraftRuleById } from "./actions";
 
 export function getColumns({
   isEditable,
@@ -102,11 +104,13 @@ export function getColumns({
 
   if (!isEditable) return base;
 
-  function ActionCell({ row }: { row: unknown }) {
+  function ActionCell({ row }: { row: any }) {
     const [confirmOpen, setConfirmOpen] = useState(false);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const rule = row.original;
     const handleDelete = async () => {
       try {
-        const docId = (row as { original: { id: string } }).original.id;
+        const docId = rule.id;
         await deleteDoc(doc(db, "businessRules", docId));
         toast.success("Business rule deleted successfully");
         if (onRefresh) {
@@ -115,6 +119,18 @@ export function getColumns({
       } catch (error) {
         console.error("Error deleting business rule:", error);
         toast.error("Failed to delete business rule");
+      }
+    };
+    const handleEdit = async (updates: any) => {
+      try {
+        await updateDraftRuleById(rule.id, updates);
+        toast.success("Business rule updated successfully");
+        if (onRefresh) {
+          await onRefresh();
+        }
+        setEditDialogOpen(false);
+      } catch (error) {
+        toast.error("Failed to update business rule");
       }
     };
     return (
@@ -131,6 +147,13 @@ export function getColumns({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
+              onClick={() => setEditDialogOpen(true)}
+              className="focus:text-primary"
+              disabled={rule.status !== "draft"}
+            >
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
               onClick={() => setConfirmOpen(true)}
               className="text-destructive focus:text-destructive"
             >
@@ -139,6 +162,13 @@ export function getColumns({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <EditRuleDialog
+          initialRule={rule}
+          onSubmit={handleEdit}
+          agency={rule.agency}
+          open={editDialogOpen}
+          setOpen={setEditDialogOpen}
+        />
         <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
           <DialogContent>
             <DialogHeader>

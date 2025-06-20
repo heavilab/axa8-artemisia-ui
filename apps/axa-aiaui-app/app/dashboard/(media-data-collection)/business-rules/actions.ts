@@ -11,6 +11,7 @@ import {
   updateDoc,
   Timestamp,
   addDoc,
+  getDoc,
 } from "firebase/firestore";
 
 export async function deleteSetById(setId: string) {
@@ -106,4 +107,21 @@ export async function publishDraftAsMain({
       publishedAt: Timestamp.now(),
     });
   }
+}
+
+/**
+ * Updates a business rule draft row by id. Only allows editing if the rule's status is 'draft'.
+ */
+export async function updateDraftRuleById(
+  ruleId: string,
+  updates: { [key: string]: any }
+) {
+  const ruleRef = doc(db, "businessRules", ruleId);
+  const ruleSnap = await getDoc(ruleRef);
+  if (!ruleSnap.exists()) throw new Error("Rule not found");
+  const ruleData = ruleSnap.data();
+  if (ruleData.status !== "draft") {
+    throw new Error("Only draft rules can be edited");
+  }
+  await updateDoc(ruleRef, updates);
 }

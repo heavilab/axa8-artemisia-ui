@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Check } from "lucide-react";
 import { Combobox } from "@/components/ui/combobox";
+import { BusinessRules } from "@/schemas/firestore";
 
 interface NewRuleDialogProps {
   onSubmit: (rule: {
@@ -34,6 +35,14 @@ interface NewRuleDialogProps {
     agency: string;
   }) => void;
   agency: string;
+}
+
+interface EditRuleDialogProps {
+  initialRule: Partial<BusinessRules> & { id: string };
+  onSubmit: (updates: Partial<BusinessRules>) => void;
+  agency: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
 const dataSources = [
@@ -323,6 +332,116 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
           )}
           <Button onClick={handleSubmit} disabled={!checked}>
             Create
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function EditRuleDialog({
+  initialRule,
+  onSubmit,
+  agency,
+  open,
+  setOpen,
+}: EditRuleDialogProps) {
+  const [dataSource, setDataSource] = useState(initialRule.dataSource || "");
+  const [field, setField] = useState(initialRule.field || "");
+  const [targetField, setTargetField] = useState(initialRule.targetField || "");
+  const [matchType, setMatchType] = useState(initialRule.matchType || "");
+  const [condition, setCondition] = useState(initialRule.condition || "");
+  const [results, setResults] = useState(initialRule.results || "");
+  const [checked, setChecked] = useState(true); // Assume valid for edit
+  const [checkStatus, setCheckStatus] = useState<null | "checked" | string>(
+    null
+  );
+
+  function handleSubmit() {
+    if (!checked) return;
+    onSubmit({
+      dataSource,
+      field,
+      targetField,
+      matchType,
+      condition,
+      results,
+      agency,
+    });
+    setOpen(false);
+  }
+
+  // Helper to convert array to combobox options
+  const toOptions = (arr: string[]) => arr.map((v) => ({ value: v, label: v }));
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Edit Rule</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Combobox
+              label="Data Source"
+              options={toOptions(dataSources)}
+              value={dataSource}
+              onChange={setDataSource}
+              placeholder="Select data source"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Combobox
+              label="Field"
+              options={toOptions(fields)}
+              value={field}
+              onChange={setField}
+              placeholder="Select field"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Combobox
+              label="Target Field"
+              options={toOptions(targetFields)}
+              value={targetField}
+              onChange={setTargetField}
+              placeholder="Select target field"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Match Type</Label>
+            <Select value={matchType} onValueChange={setMatchType}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select match type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">default</SelectItem>
+                <SelectItem value="regexp-contains">regexp-contains</SelectItem>
+                <SelectItem value="calculation">calculation</SelectItem>
+                <SelectItem value="regexp-extract">regexp-extract</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <Label>Condition</Label>
+            <Input
+              className="w-full"
+              value={condition}
+              onChange={(e) => setCondition(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Results</Label>
+            <Input
+              className="w-full"
+              value={results}
+              onChange={(e) => setResults(e.target.value)}
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex justify-end">
+          <Button onClick={handleSubmit} disabled={!checked}>
+            Save
           </Button>
         </DialogFooter>
       </DialogContent>
