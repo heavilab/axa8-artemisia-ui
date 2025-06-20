@@ -1,66 +1,62 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { DataTable } from "../business-rules/data-table";
-import { getColumns } from "./table-columns";
 import { NodeMappings } from "@/schemas/firestore";
-import { useUser } from "@/lib/hooks/use-user";
+import { NodeMappingsTabs } from "./node-mappings-tabs";
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+interface UserProfile {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+}
 
 export function NodeMappingsTable() {
   const [nodeMappings, setNodeMappings] = useState<NodeMappings[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useUser();
 
-  const fetchNodeMappings = async () => {
+  const fetchData = async () => {
     try {
-      setLoading(true);
-      const q = query(
-        collection(db, "nodeMappings"),
-        orderBy("createdAt", "desc")
+      const nodeMappingsSnapshot = await getDocs(
+        collection(db, "nodeMappings")
       );
-      const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
+      const nodeMappingsData = nodeMappingsSnapshot.docs.map((doc) => ({
         id: doc.id,
+        ...doc.data(),
       })) as NodeMappings[];
-      setNodeMappings(data);
+
+      const usersSnapshot = await getDocs(collection(db, "users"));
+      const usersData = usersSnapshot.docs.map((doc) => ({
+        email: doc.id,
+        ...doc.data(),
+      })) as UserProfile[];
+
+      setNodeMappings(nodeMappingsData);
+      setUsers(usersData);
     } catch (error) {
-      console.error("Error fetching node mappings:", error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchNodeMappings();
+    fetchData();
   }, []);
 
-  const columns = getColumns({
-    isEditable: true,
-    onRefresh: fetchNodeMappings,
-  });
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">Loading node mappings...</div>
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Node Mappings</h2>
-          <p className="text-muted-foreground">
-            Manage data source field mappings and transformations.
-          </p>
-        </div>
-      </div>
-      <DataTable columns={columns} data={nodeMappings} />
+      <NodeMappingsTabs
+        nodeMappings={nodeMappings}
+        onRefresh={fetchData}
+        users={users}
+      />
     </div>
   );
 }

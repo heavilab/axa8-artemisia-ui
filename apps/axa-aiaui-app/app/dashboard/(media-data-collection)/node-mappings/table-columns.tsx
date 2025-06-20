@@ -1,7 +1,6 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { NodeMappings } from "@/schemas/firestore";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,15 +8,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  MoreVertical,
-  Filter as FilterIcon,
-  ChevronsUpDown,
-} from "lucide-react";
+import { MoreVertical, ChevronsUpDown } from "lucide-react";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import {
   Dialog,
@@ -27,31 +21,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { getDataSourceIcon } from "@/lib/utils/icon-utils";
-
-export type NodeMapping = {
-  id: string;
-  dataSource: string;
-  advertiser: string;
-  nodeName: string;
-  fundingEntity: string;
-  mediaLevel_1: string;
-  startDate: string;
-  endDate: string;
-  datasetId: string;
-  createdAt: any;
-  publishedAt?: any;
-  createdBy: string;
-};
+import { NodeMappings } from "@/schemas/firestore";
 
 export function getColumns({
-  isEditable,
   onRefresh,
-  dataSourceFilterActive = false,
   showActions = false,
 }: {
-  isEditable: boolean;
   onRefresh?: () => void | Promise<void>;
-  dataSourceFilterActive?: boolean;
   showActions?: boolean;
 }): ColumnDef<NodeMappings>[] {
   const base: ColumnDef<NodeMappings>[] = [

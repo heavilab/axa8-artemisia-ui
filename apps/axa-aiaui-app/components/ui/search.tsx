@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Search as SearchIcon } from "lucide-react";
+import { Search as SearchIcon, ChevronsUpDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,6 @@ interface SearchProps {
   value?: string;
   onChange?: (value: string) => void;
   className?: string;
-  disabled?: boolean;
 }
 
 export function Search({
@@ -32,10 +31,7 @@ export function Search({
   value = "",
   onChange,
   className,
-  disabled = false,
 }: SearchProps) {
-  const [open, setOpen] = React.useState(false);
-
   return (
     <div className={cn("relative", className)}>
       <SearchIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -44,7 +40,6 @@ export function Search({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
-        disabled={disabled}
         className="flex h-9 w-full rounded-md border border-input bg-transparent px-8 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
       />
     </div>
@@ -80,7 +75,7 @@ export function SearchWithSuggestions({
           className={cn("w-full justify-between", className)}
           disabled={disabled}
         >
-          <SearchIcon className="mr-2 h-4 w-4" />
+          <ChevronsUpDown className="mr-2 h-4 w-4 shrink-0 opacity-50" />
           {value || placeholder}
         </Button>
       </PopoverTrigger>

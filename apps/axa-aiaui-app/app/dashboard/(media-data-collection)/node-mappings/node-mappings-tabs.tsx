@@ -17,11 +17,9 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useUser } from "@/lib/hooks/use-user";
 import { CreateDraftDialog } from "./create-draft-dialog";
 import {
   deleteDoc,
-  doc,
   collection,
   query,
   where,
@@ -49,7 +47,6 @@ export function NodeMappingsTabs({
 }: Props) {
   const [selectedTab, setSelectedTab] = useState<string>("main");
   const [searchQuery, setSearchQuery] = useState("");
-  const { user } = useUser();
 
   // Get unique dataset IDs for drafts
   const draftDatasetIds = Array.from(
@@ -84,12 +81,10 @@ export function NodeMappingsTabs({
   });
 
   const columns = getColumns({
-    isEditable: true,
     onRefresh,
   });
 
   const draftColumns = getColumns({
-    isEditable: true,
     onRefresh,
     showActions: true,
   });
