@@ -16,6 +16,7 @@ const db = getFirestore();
 // Define collection-specific behavior
 const seedConfigs: Record<string, { enrich?: boolean }> = {
   countries: {}, // regular load
+  users: {}, // regular load
   businessRules: { enrich: true }, // requires enrichment
 };
 

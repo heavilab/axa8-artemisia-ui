@@ -37,7 +37,7 @@ export function Combobox({
 
   return (
     <div className="space-y-1">
-      {label && <div className="text-sm text-muted-foreground">{label}</div>}
+      {label && <div className="text-sm text-foreground">{label}</div>}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button

@@ -1,4 +1,4 @@
-// app/dashboard/(media-data-collection)/source-field-mappings/source-field-mapping-table.tsx
+// app/dashboard/(media-data-collection)/business-rules/source-field-mapping-table.tsx
 import { BusinessRules } from "@/schemas/firestore";
 import { DataTable } from "./data-table";
 import { getColumns } from "./table-columns";
@@ -8,12 +8,14 @@ interface Props {
   data: BusinessRules[];
   isEditable: boolean;
   searchQuery: string;
+  onRefresh?: () => void | Promise<void>;
 }
 
-export function SourceFieldMappingTable({
+export function BusinessRulesTable({
   data,
   isEditable,
   searchQuery = "",
+  onRefresh,
 }: Props) {
   const filtered = data.filter(
     (row) =>
@@ -22,7 +24,10 @@ export function SourceFieldMappingTable({
       row.dataSource?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const columns = useMemo(() => getColumns({ isEditable }), [isEditable]);
+  const columns = useMemo(
+    () => getColumns({ isEditable, onRefresh }),
+    [isEditable, onRefresh]
+  );
 
   return <DataTable columns={columns} data={filtered} />;
 }

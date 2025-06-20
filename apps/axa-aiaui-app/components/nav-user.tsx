@@ -1,7 +1,8 @@
 "use client";
 
 import {
-  BadgeCheck,
+  User,
+  ShieldCheck,
   ChevronsUpDown,
   LogOut,
   Moon,
@@ -10,6 +11,9 @@ import {
   Settings,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -40,6 +44,16 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const { setTheme } = useTheme();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <SidebarMenu>
@@ -81,16 +95,21 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck className="size-4" />
-                <span>Account</span>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/dashboard/account"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <User className="size-4" />
+                  <span>Account</span>
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link
                   href="/dashboard/admin"
                   className="flex items-center gap-2 w-full"
                 >
-                  <BadgeCheck className="size-4" />
+                  <ShieldCheck className="size-4" />
                   <span>Admin</span>
                 </Link>
               </DropdownMenuItem>
@@ -114,7 +133,7 @@ export function NavUser({
               System
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

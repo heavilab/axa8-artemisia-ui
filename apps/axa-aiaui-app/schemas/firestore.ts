@@ -20,6 +20,8 @@ export const businessRulesSchema = z.object({
   createdBy: z.string(),
   emptyFieldRatio: z.number().optional(),
 
+  country: z.string(),
+  entity: z.string(),
   agency: z.string(),
   dataSource: z.string(),
 

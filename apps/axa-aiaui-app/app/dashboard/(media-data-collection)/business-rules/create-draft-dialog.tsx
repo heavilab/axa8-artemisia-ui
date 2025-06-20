@@ -13,91 +13,26 @@ import { useState } from "react";
 import { Combobox } from "@/components/ui/combobox";
 import { Plus } from "lucide-react";
 
-const COUNTRIES = [
-  "dz",
-  "be",
-  "cn",
-  "eg",
-  "fr",
-  "de",
-  "gb",
-  "hk",
-  "id",
-  "ie",
-  "xi",
-  "it",
-  "jp",
-  "mx",
-  "ma",
-  "ng",
-  "ph",
-  "es",
-  "ch",
-  "th",
-  "tr",
-  "zz",
-];
+const COUNTRIES = ["ES"];
 
-const ENTITIES = [
-  "axa-dz-dommage",
-  "axa-dz-vie",
-  "axa-sa",
-  "axa-be",
-  "yuzzu-be",
-  "axa-be-im",
-  "axa-tianping",
-  "axa-eg-life",
-  "axa-eg-health",
-  "axa-france",
-  "axa-prevention",
-  "axa-banque",
-  "axa-germany",
-  "axa-uk",
-  "axa-uk-insurance",
-  "axa-uk-health",
-  "axa-hongkong",
-  "axa-id-mandiri",
-  "axa-id-afi",
-  "axa-ie-roi",
-  "axa-ie-ni",
-  "axa-italy",
-  "axa-jp-adj",
-  "axa-jp-alj",
-  "axa-mexico",
-  "axa-morocco",
-  "axa-ng-onehealth",
-  "axa-ng-health",
-  "axa-ng-insurance",
-  "axa-ng-investment",
-  "axa-philippines",
-  "axa-es-aurora",
-  "axa-es-seguros",
-  "axa-switzerland",
-  "axa-th-krungthai",
-  "axa-tr-sigorta",
-  "axa-tr-hayat",
-  "axa-sa",
-];
+const ENTITIES = ["ESAXA", "ESALL"];
 
-const AGENCIES = [
-  "OMD",
-  "Jakala",
-  "Wavemaker",
-  "blue2purple",
-  "Mindshare",
-  "Webrepublic",
-  "axa-internal",
-  "Pulse",
-  "Heart&science",
-  "Dentsudigital",
-  "<other…>",
-];
+const AGENCIES = ["OMD", "Jakala"];
 
 export function CreateDraftDialog({
   onCreate,
+  onRefresh,
 }: {
-  onCreate: (info: { agency: string; entity: string; country: string }) => void;
+  onCreate: (info: {
+    agency: string;
+    entity: string;
+    country: string;
+  }) => void | Promise<void>;
+  onRefresh: () => void | Promise<void>;
 }) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const countryOptions = COUNTRIES.map((code) => ({
     value: code,
     label: code.toUpperCase(),
@@ -110,7 +45,7 @@ export function CreateDraftDialog({
   const [country, setCountry] = useState("");
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
           <Plus /> Create Draft
@@ -147,10 +82,17 @@ export function CreateDraftDialog({
         <DialogFooter>
           <Button
             type="submit"
-            disabled={!agency || !entity || !country}
-            onClick={() => onCreate({ agency, entity, country })}
+            disabled={!agency || !entity || !country || loading}
+            onClick={async () => {
+              setLoading(true);
+              await onCreate({ agency, entity, country });
+              await onRefresh();
+              setLoading(false);
+              setOpen(false);
+            }}
+            className="cursor-pointer"
           >
-            Create
+            {loading ? "Creating..." : "Create"}
           </Button>
         </DialogFooter>
       </DialogContent>

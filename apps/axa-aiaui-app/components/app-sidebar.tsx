@@ -3,9 +3,13 @@
 import * as React from "react";
 import Image from "next/image";
 import { FileBarChart, FolderGit2, DatabaseZap } from "lucide-react";
+import { useEffect, useState } from "react";
+import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
+import { useUser } from "@/lib/hooks/use-user";
 import {
   Sidebar,
   SidebarContent,
@@ -17,11 +21,6 @@ import {
 } from "@/components/ui/sidebar";
 
 const data = {
-  user: {
-    name: "Romain Florentz",
-    email: "romain@heaviside.fr",
-    avatar: "/avatars/axa.jpg",
-  },
   navMain: [
     {
       title: "Media Dashboard",
@@ -52,6 +51,48 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, loading } = useUser();
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      if (user?.email) {
+        const q = query(
+          collection(db, "users"),
+          where("email", "==", user.email)
+        );
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          setProfile(snapshot.docs[0].data());
+        }
+      }
+    }
+    fetchProfile();
+  }, [user]);
+
+  const navUser = user
+    ? profile
+      ? {
+          name:
+            `${profile.firstName} ${profile.lastName}`.trim() ||
+            user.displayName ||
+            user.email ||
+            "User",
+          email: profile.email || user.email || "",
+          avatar: user.photoURL || "/avatars/axa.jpg",
+          role: profile.role,
+        }
+      : {
+          name: user.displayName || user.email || "User",
+          email: user.email || "",
+          avatar: user.photoURL || "/avatars/axa.jpg",
+        }
+    : {
+        name: "Not logged in",
+        email: "",
+        avatar: "/avatars/axa.jpg",
+      };
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -80,7 +121,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={navUser} />
       </SidebarFooter>
     </Sidebar>
   );

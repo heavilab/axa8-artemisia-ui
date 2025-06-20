@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils"; // helper to join classnames
 
 export default function Page() {
   return (
@@ -15,16 +18,16 @@ export default function Page() {
       </section>
 
       <div className="grid grid-cols-2 gap-4 max-w-4xl">
-        <Card title="Media reporting" href="/dashboard" />
-        <Card
+        <HomeCard title="Media reporting" href="/dashboard" />
+        <HomeCard
           title="Centralization tools"
           href="/dashboard/centralization-tools"
         />
-        <Card
+        <HomeCard
           title="Media Data collection"
           href="/dashboard/media-data-collection"
         />
-        <Card title="Services" disabled />
+        <HomeCard title="Services" disabled />
       </div>
 
       <section className="space-y-2">
@@ -35,34 +38,38 @@ export default function Page() {
       </section>
 
       <div className="grid grid-cols-2 gap-4 max-w-6xl">
-        <div className="rounded-xl border p-6 space-y-4 hover:shadow-md transition-shadow duration-200">
-          <h3 className="text-lg font-semibold">
-            API Data Collection and Completion
-          </h3>
-          <div className="space-y-2">
-            <ActionLink href="/dashboard">
-              Configure dynamic completion →
-            </ActionLink>
-            <SmallLink href="/dashboard">
-              Go to last draft completion →
-            </SmallLink>
-            <ActionLink href="/dashboard">
-              Configure static completion →
-            </ActionLink>
-            <SmallLink href="/dashboard">Go to last draft →</SmallLink>
-          </div>
-        </div>
+        <Card className="hover:shadow-md transition-shadow duration-200">
+          <CardContent className="px-6 space-y-4">
+            <h3 className="text-lg font-semibold">
+              API Data Collection and Completion
+            </h3>
+            <div className="space-y-2">
+              <ActionLink href="/dashboard">
+                Configure dynamic completion →
+              </ActionLink>
+              <SmallLink href="/dashboard">
+                Go to last draft completion →
+              </SmallLink>
+              <ActionLink href="/dashboard">
+                Configure static completion →
+              </ActionLink>
+              <SmallLink href="/dashboard">Go to last draft →</SmallLink>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="rounded-xl border p-6 space-y-4 hover:shadow-md transition-shadow duration-200">
-          <h3 className="text-lg font-semibold">Non-API Data Collection</h3>
-          <ActionLink href="/mdct">Upload filled template →</ActionLink>
-        </div>
+        <Card className="hover:shadow-md transition-shadow duration-200">
+          <CardContent className="px-6 space-y-4">
+            <h3 className="text-lg font-semibold">Non-API Data Collection</h3>
+            <ActionLink href="/mdct">Upload filled template →</ActionLink>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 }
 
-function Card({
+function HomeCard({
   title,
   href,
   disabled = false,
@@ -71,18 +78,26 @@ function Card({
   href?: string;
   disabled?: boolean;
 }) {
-  const baseStyle =
-    "rounded-xl border p-6 flex items-center justify-center text-lg font-semibold text-center min-h-[120px] transition-all duration-200";
-  const interactive =
-    "hover:shadow-md hover:bg-[#F9FAFB] hover:scale-[1.02] cursor-pointer";
-  const disabledStyle = "text-muted-foreground bg-muted cursor-not-allowed";
-
-  return disabled ? (
-    <div className={`${baseStyle} ${disabledStyle}`}>{title}</div>
-  ) : (
-    <Link href={href!} className={`${baseStyle} ${interactive}`}>
-      {title}
-    </Link>
+  return (
+    <Card
+      className={cn(
+        "min-h-[120px] flex items-center justify-center text-lg font-semibold text-center transition-all duration-200",
+        !disabled &&
+          "hover:shadow-md hover:bg-muted hover:scale-[1.02] cursor-pointer",
+        disabled && "text-muted-foreground bg-muted"
+      )}
+    >
+      {disabled ? (
+        <span>{title}</span>
+      ) : (
+        <Link
+          href={href!}
+          className="w-full h-full flex items-center justify-center"
+        >
+          {title}
+        </Link>
+      )}
+    </Card>
   );
 }
 
@@ -96,7 +111,7 @@ function ActionLink({
   return (
     <Link
       href={href}
-      className="block text-black decoration-transparent hover:decoration-inherit hover:text-[#00008F] hover:underline transition-colors"
+      className="block text-sm font-medium text-foreground hover:text-[#00008F] hover:underline transition-colors"
     >
       {children}
     </Link>
@@ -113,7 +128,7 @@ function SmallLink({
   return (
     <Link
       href={href}
-      className="block text-xs text-muted-foreground decoration-transparent hover:decoration-inherit hover:text-[#00008F] hover:underline transition-colors"
+      className="block text-xs text-muted-foreground hover:text-[#00008F] hover:underline transition-colors"
     >
       {children}
     </Link>
