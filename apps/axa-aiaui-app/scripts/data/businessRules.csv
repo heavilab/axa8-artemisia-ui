@@ -1,4 +1,4 @@
-data_source,agency,country,entity,field,target_field,start_date,end_date,rules_order,match_type,condition,results
+dataSource,agency,country,entity,field,targetField,startDate,endDate,rulesOrder,matchType,condition,results
 CM360,OMD,ES,ESAXA,,entity,,,6,DEFAULT,,"""axa-es-seguros"""
 GoogleAds,OMD,ES,ESAXA,,entity,,,15,DEFAULT,,"""axa-es-seguros"""
 BingAds,OMD,ES,ESAXA,,entity,,,8,DEFAULT,,"""axa-es-seguros"""

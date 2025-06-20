@@ -19,6 +19,8 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { exportToCSV } from "@/lib/utils/csv";
+import { Combobox } from "@/components/ui/combobox";
+import { Filter as FilterIcon } from "lucide-react";
 
 interface Props {
   sets: string[];
@@ -38,12 +40,103 @@ export function BusinessRulesTabs({
   const [searchQueries, setSearchQueries] = useState<Record<string, string>>(
     {}
   );
+  // Filter state
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [dataSourceFilter, setDataSourceFilter] = useState<string>("");
+  const [fieldFilter, setFieldFilter] = useState<string>("");
+  const [targetFieldFilter, setTargetFieldFilter] = useState<string>("");
+  const [matchTypeFilter, setMatchTypeFilter] = useState<string>("");
+  const [scopeFilter, setScopeFilter] = useState<string>("");
+
+  // Tab-specific filter state
+  const [filters, setFilters] = useState<
+    Record<
+      string,
+      {
+        scope: string;
+        dataSource: string;
+        field: string;
+        targetField: string;
+        matchType: string;
+      }
+    >
+  >({});
+
+  // Helper to get/set filters for a tab
+  const getTabFilters = (tabId: string) =>
+    filters[tabId] || {
+      scope: "",
+      dataSource: "",
+      field: "",
+      targetField: "",
+      matchType: "",
+    };
+  const setTabFilter = (
+    tabId: string,
+    key: keyof (typeof filters)[string],
+    value: string
+  ) => {
+    setFilters((prev) => ({
+      ...prev,
+      [tabId]: { ...getTabFilters(tabId), [key]: value },
+    }));
+  };
+  const clearTabFilters = (tabId: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [tabId]: {
+        scope: "",
+        dataSource: "",
+        field: "",
+        targetField: "",
+        matchType: "",
+      },
+    }));
+  };
 
   if (mappings[0] === undefined) return;
 
   const agency = mappings[0].agency;
   const entity = mappings[0].entity;
   const country = mappings[0].country;
+
+  // Get all unique values for combobox options
+  const allDataSources = Array.from(
+    new Set(mappings.map((m) => m.dataSource).filter(Boolean))
+  );
+  const dataSourceOptions = allDataSources.map((v) => ({ value: v, label: v }));
+  const allFields = Array.from(
+    new Set(mappings.map((m) => m.field).filter((v): v is string => !!v))
+  );
+  const fieldOptions = allFields.map((v) => ({ value: v, label: v }));
+  const allTargetFields = Array.from(
+    new Set(mappings.map((m) => m.targetField).filter((v): v is string => !!v))
+  );
+  const targetFieldOptions = allTargetFields.map((v) => ({
+    value: v,
+    label: v,
+  }));
+  const allMatchTypes = Array.from(
+    new Set(mappings.map((m) => m.matchType).filter((v): v is string => !!v))
+  );
+  const matchTypeOptions = allMatchTypes.map((v) => ({ value: v, label: v }));
+  const allScopes = Array.from(
+    new Set(
+      mappings
+        .map((m) => [m.country, m.entity, m.agency].filter(Boolean).join("-"))
+        .filter(Boolean)
+    )
+  );
+  const scopeOptions = allScopes.map((v) => ({ value: v, label: v }));
+
+  // Count active filters
+  const activeFilterCount = [
+    scopeFilter,
+    dataSourceFilter,
+    fieldFilter,
+    targetFieldFilter,
+    matchTypeFilter,
+  ].filter(Boolean).length;
 
   return (
     <Tabs
@@ -111,10 +204,47 @@ export function BusinessRulesTabs({
       </div>
 
       {sets.map((setId) => {
-        const rows = mappings.filter((m) => m.setId === setId);
+        let rows = mappings.filter((m) => m.setId === setId);
         const isMain = rows[0]?.status === "main";
 
+        // Get filters for this tab
+        const tabFilters = getTabFilters(setId);
+        const { scope, dataSource, field, targetField, matchType } = tabFilters;
+
+        // Only allow scope filter for main tab
+        const showScopeFilter = isMain;
+
+        // Apply filters
+        if (showScopeFilter && scope) {
+          rows = rows.filter(
+            (row) =>
+              [row.country, row.entity, row.agency]
+                .filter(Boolean)
+                .join("-") === scope
+          );
+        }
+        if (dataSource) {
+          rows = rows.filter((row) => row.dataSource === dataSource);
+        }
+        if (field) {
+          rows = rows.filter((row) => row.field === field);
+        }
+        if (targetField) {
+          rows = rows.filter((row) => row.targetField === targetField);
+        }
+        if (matchType) {
+          rows = rows.filter((row) => row.matchType === matchType);
+        }
+
         const searchQuery = searchQueries[setId] || "";
+        const activeFilterCount = [
+          showScopeFilter ? scope : null,
+          dataSource,
+          field,
+          targetField,
+          matchType,
+        ].filter(Boolean).length;
+
         return (
           <TabsContent key={setId} value={setId} className="mt-4 space-y-4">
             <div className="flex justify-between items-center gap-4 flex-wrap">
@@ -132,17 +262,86 @@ export function BusinessRulesTabs({
                   className="h-8 w-48"
                 />
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8"
-                  onClick={() => {
-                    alert("TODO: open filters dropdown");
-                  }}
+                {/* Filters Button and Dialog */}
+                <Dialog
+                  open={filterDialogOpen && selected === setId}
+                  onOpenChange={setFilterDialogOpen}
                 >
-                  <Filter className="w-4 h-4 mr-1" />
-                  Filters
-                </Button>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 relative"
+                    >
+                      <Filter className="w-4 h-4 mr-1" />
+                      Filters
+                      {activeFilterCount > 0 && (
+                        <Badge
+                          className="ml-2 px-1.5 py-0.5 text-xs text-primary"
+                          variant="secondary"
+                        >
+                          {activeFilterCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-xs">
+                    <DialogHeader>
+                      <DialogTitle>Filters</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      {showScopeFilter && (
+                        <Combobox
+                          label="Scope"
+                          options={scopeOptions}
+                          value={scope}
+                          onChange={(v) => setTabFilter(setId, "scope", v)}
+                          placeholder="Select scope"
+                        />
+                      )}
+                      <Combobox
+                        label="Data Source"
+                        options={dataSourceOptions}
+                        value={dataSource}
+                        onChange={(v) => setTabFilter(setId, "dataSource", v)}
+                        placeholder="Select data source"
+                      />
+                      <Combobox
+                        label="Field"
+                        options={fieldOptions}
+                        value={field}
+                        onChange={(v) => setTabFilter(setId, "field", v)}
+                        placeholder="Select field"
+                      />
+                      <Combobox
+                        label="Target Field"
+                        options={targetFieldOptions}
+                        value={targetField}
+                        onChange={(v) => setTabFilter(setId, "targetField", v)}
+                        placeholder="Select target field"
+                      />
+                      <Combobox
+                        label="Match Type"
+                        options={matchTypeOptions}
+                        value={matchType}
+                        onChange={(v) => setTabFilter(setId, "matchType", v)}
+                        placeholder="Select match type"
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="secondary"
+                        onClick={() => clearTabFilters(setId)}
+                        disabled={activeFilterCount === 0}
+                      >
+                        Clear
+                      </Button>
+                      <DialogClose asChild>
+                        <Button variant="default">Apply</Button>
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
                 <Button
                   variant="outline"
                   size="sm"
@@ -162,6 +361,7 @@ export function BusinessRulesTabs({
                 {!isMain && (
                   <NewRuleDialog
                     onSubmit={(rule) => alert(JSON.stringify(rule))}
+                    agency={agency}
                   />
                 )}
                 {!isMain && (
@@ -194,6 +394,11 @@ export function BusinessRulesTabs({
               isEditable={!isMain}
               searchQuery={searchQuery}
               onRefresh={onRefresh}
+              scopeFilterActive={showScopeFilter && !!scope}
+              dataSourceFilterActive={!!dataSource}
+              fieldFilterActive={!!field}
+              targetFieldFilterActive={!!targetField}
+              matchTypeFilterActive={!!matchType}
             />
           </TabsContent>
         );

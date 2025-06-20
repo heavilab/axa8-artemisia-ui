@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Trash2 } from "lucide-react";
+import { MoreVertical, Trash2, Filter as FilterIcon } from "lucide-react";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
@@ -17,24 +17,77 @@ import { Badge } from "@/components/ui/badge";
 export function getColumns({
   isEditable,
   onRefresh,
+  scopeFilterActive = false,
+  dataSourceFilterActive = false,
+  fieldFilterActive = false,
+  targetFieldFilterActive = false,
+  matchTypeFilterActive = false,
 }: {
   isEditable: boolean;
   onRefresh?: () => void | Promise<void>;
+  scopeFilterActive?: boolean;
+  dataSourceFilterActive?: boolean;
+  fieldFilterActive?: boolean;
+  targetFieldFilterActive?: boolean;
+  matchTypeFilterActive?: boolean;
 }): ColumnDef<BusinessRules>[] {
   const base: ColumnDef<BusinessRules>[] = [
     {
       id: "scope",
-      header: "Scope",
+      header: () => (
+        <span className="flex items-center gap-2">
+          Scope
+          {scopeFilterActive && <FilterIcon className="w-4 h-4 text-primary" />}
+        </span>
+      ),
       cell: ({ row }) => {
         const { country, entity, agency } = row.original;
         const scope = [country, entity, agency].filter(Boolean).join("-");
         return <Badge variant="secondary">{scope}</Badge>;
       },
     },
-    { accessorKey: "dataSource", header: "Data Source" },
-    { accessorKey: "field", header: "Field" },
-    { accessorKey: "targetField", header: "Target Field" },
-    { accessorKey: "matchType", header: "Match Type" },
+    {
+      accessorKey: "dataSource",
+      header: () => (
+        <span className="flex items-center gap-2">
+          Data Source
+          {dataSourceFilterActive && (
+            <FilterIcon className="w-4 h-4 text-primary" />
+          )}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "field",
+      header: () => (
+        <span className="flex items-center gap-2">
+          Field
+          {fieldFilterActive && <FilterIcon className="w-4 h-4 text-primary" />}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "targetField",
+      header: () => (
+        <span className="flex items-center gap-2">
+          Target Field
+          {targetFieldFilterActive && (
+            <FilterIcon className="w-4 h-4 text-primary" />
+          )}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "matchType",
+      header: () => (
+        <span className="flex items-center gap-2">
+          Match Type
+          {matchTypeFilterActive && (
+            <FilterIcon className="w-4 h-4 text-primary" />
+          )}
+        </span>
+      ),
+    },
     { accessorKey: "condition", header: "Condition" },
     { accessorKey: "results", header: "Results" },
   ];

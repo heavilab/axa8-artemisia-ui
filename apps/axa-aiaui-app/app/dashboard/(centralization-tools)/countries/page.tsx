@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { collection, getDocs, deleteDoc, addDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  addDoc,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
@@ -20,6 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import Papa, { ParseResult } from "papaparse";
 import { Input } from "@/components/ui/input";
+import { useUser } from "@/lib/hooks/use-user";
 
 const REQUIRED_COLUMNS = ["country", "data_currency", "language"];
 
@@ -34,6 +42,9 @@ export default function Page() {
   const [parsedRows, setParsedRows] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { user, loading: userLoading } = useUser();
+  const [profile, setProfile] = useState<{ role: string } | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -47,6 +58,25 @@ export default function Page() {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      if (user?.email) {
+        const q = query(
+          collection(db, "users"),
+          where("email", "==", user.email)
+        );
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          setProfile(snapshot.docs[0].data() as { role: string });
+        }
+      }
+      setProfileLoading(false);
+    }
+    if (!userLoading) {
+      fetchProfile();
+    }
+  }, [user, userLoading]);
 
   function sanityCheck(headers: string[]) {
     const missing = REQUIRED_COLUMNS.filter((col) => !headers.includes(col));
@@ -88,6 +118,10 @@ export default function Page() {
     window.location.reload(); // quick way to refresh data
   }
 
+  if (userLoading || profileLoading) {
+    return null;
+  }
+
   return (
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
@@ -103,45 +137,47 @@ export default function Page() {
           >
             Download CSV
           </Button>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="default">Update</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Update Countries</DialogTitle>
-                <DialogDescription>
-                  Upload a CSV file with columns: country, data_currency,
-                  language
-                </DialogDescription>
-              </DialogHeader>
-              <input
-                type="file"
-                accept=".csv"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="mb-2"
-              />
-              {sanityResult && (
-                <div
-                  className={
-                    sanityResult.ok ? "text-green-600" : "text-red-600"
-                  }
-                >
-                  {sanityResult.message}
-                </div>
-              )}
-              <DialogFooter>
-                <Button
-                  onClick={handlePublish}
-                  disabled={!sanityResult?.ok || uploading}
-                  className="mt-2"
-                >
-                  {uploading ? "Publishing..." : "Publish"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          {profile?.role === "Admin" && (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="default">Update</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Update Countries</DialogTitle>
+                  <DialogDescription>
+                    Upload a CSV file with columns: country, data_currency,
+                    language
+                  </DialogDescription>
+                </DialogHeader>
+                <input
+                  type="file"
+                  accept=".csv"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="mb-2"
+                />
+                {sanityResult && (
+                  <div
+                    className={
+                      sanityResult.ok ? "text-green-600" : "text-red-600"
+                    }
+                  >
+                    {sanityResult.message}
+                  </div>
+                )}
+                <DialogFooter>
+                  <Button
+                    onClick={handlePublish}
+                    disabled={!sanityResult?.ok || uploading}
+                    className="mt-2"
+                  >
+                    {uploading ? "Publishing..." : "Publish"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
       <div className="mb-2 max-w-xs">

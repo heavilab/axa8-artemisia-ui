@@ -21,17 +21,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
+import { Combobox } from "@/components/ui/combobox";
 
 interface NewRuleDialogProps {
   onSubmit: (rule: {
     dataSource: string;
-    agency: string;
     field: string;
     targetField: string;
     matchType: string;
     condition: string;
     results: string;
+    agency: string;
   }) => void;
+  agency: string;
 }
 
 const dataSources = [
@@ -108,10 +110,9 @@ const targetFields = [
   "video_or_audio_completed",
 ];
 
-export function NewRuleDialog({ onSubmit }: NewRuleDialogProps) {
+export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
   const [open, setOpen] = useState(false);
   const [dataSource, setDataSource] = useState("");
-  const [agency, setAgency] = useState("");
   const [field, setField] = useState("");
   const [targetField, setTargetField] = useState("");
   const [matchType, setMatchType] = useState("");
@@ -121,7 +122,6 @@ export function NewRuleDialog({ onSubmit }: NewRuleDialogProps) {
 
   function resetForm() {
     setDataSource("");
-    setAgency("");
     setField("");
     setTargetField("");
     setMatchType("");
@@ -134,12 +134,12 @@ export function NewRuleDialog({ onSubmit }: NewRuleDialogProps) {
     if (!checked) return;
     onSubmit({
       dataSource,
-      agency,
       field,
       targetField,
       matchType,
       condition,
       results,
+      agency,
     });
     resetForm();
     setOpen(false);
@@ -147,12 +147,15 @@ export function NewRuleDialog({ onSubmit }: NewRuleDialogProps) {
 
   function handleCheck() {
     // Dummy logic to simulate a check
-    if (dataSource && agency && field && targetField && matchType) {
+    if (dataSource && field && targetField && matchType) {
       setChecked(true);
     } else {
       setChecked(false);
     }
   }
+
+  // Helper to convert array to combobox options
+  const toOptions = (arr: string[]) => arr.map((v) => ({ value: v, label: v }));
 
   return (
     <Dialog
@@ -173,63 +176,31 @@ export function NewRuleDialog({ onSubmit }: NewRuleDialogProps) {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label>Data Source</Label>
-            <Select value={dataSource} onValueChange={setDataSource}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select data source" />
-              </SelectTrigger>
-              <SelectContent>
-                {dataSources.map((source) => (
-                  <SelectItem key={source} value={source}>
-                    {source}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Combobox
+              label="Data Source"
+              options={toOptions(dataSources)}
+              value={dataSource}
+              onChange={setDataSource}
+              placeholder="Select data source"
+            />
           </div>
           <div className="grid gap-2">
-            <Label>Agency</Label>
-            <Select value={agency} onValueChange={setAgency}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select agency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="OMD">OMD</SelectItem>
-                <SelectItem value="Jakala">Jakala</SelectItem>
-                <SelectItem value="axa-internal">axa-internal</SelectItem>
-                <SelectItem value="<other…>">&lt;other…&gt;</SelectItem>
-              </SelectContent>
-            </Select>
+            <Combobox
+              label="Field"
+              options={toOptions(fields)}
+              value={field}
+              onChange={setField}
+              placeholder="Select field"
+            />
           </div>
           <div className="grid gap-2">
-            <Label>Field</Label>
-            <Select value={field} onValueChange={setField}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select field" />
-              </SelectTrigger>
-              <SelectContent>
-                {fields.map((f) => (
-                  <SelectItem key={f} value={f}>
-                    {f}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-2">
-            <Label>Target Field</Label>
-            <Select value={targetField} onValueChange={setTargetField}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select target field" />
-              </SelectTrigger>
-              <SelectContent>
-                {targetFields.map((f) => (
-                  <SelectItem key={f} value={f}>
-                    {f}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Combobox
+              label="Target Field"
+              options={toOptions(targetFields)}
+              value={targetField}
+              onChange={setTargetField}
+              placeholder="Select target field"
+            />
           </div>
           <div className="grid gap-2">
             <Label>Match Type</Label>
