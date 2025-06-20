@@ -88,7 +88,7 @@ export async function publishDraftAsMain({
 
   // 5. Set all draft rules for the draft scope to main and update publishedAt
   for (const rule of draftScopeRules) {
-    await updateDoc(doc(db, "businessRules", (rule as any).id), {
+    await updateDoc(doc(db, "businessRules", (rule as { id: string }).id), {
       status: "main",
       publishedAt: Timestamp.now(),
       setId: draftSetId,
