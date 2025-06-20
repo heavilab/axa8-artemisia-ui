@@ -104,13 +104,18 @@ export function getColumns({
 
   if (!isEditable) return base;
 
-  function ActionCell({ row }: { row: any }) {
+  function ActionCell({
+    row,
+  }: {
+    row: { original: BusinessRules & { id?: string } };
+  }) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const rule = row.original;
     const handleDelete = async () => {
       try {
         const docId = rule.id;
+        if (!docId) throw new Error("Document ID is missing");
         await deleteDoc(doc(db, "businessRules", docId));
         toast.success("Business rule deleted successfully");
         if (onRefresh) {
@@ -121,15 +126,23 @@ export function getColumns({
         toast.error("Failed to delete business rule");
       }
     };
-    const handleEdit = async (updates: any) => {
+    const handleEdit = async (updates: unknown) => {
       try {
-        await updateDraftRuleById(rule.id, updates);
+        await updateDraftRuleById(
+          rule.id as string,
+          updates as {
+            [key: string]:
+              | import("firebase/firestore").FieldValue
+              | Partial<unknown>
+              | undefined;
+          }
+        );
         toast.success("Business rule updated successfully");
         if (onRefresh) {
           await onRefresh();
         }
         setEditDialogOpen(false);
-      } catch (error) {
+      } catch {
         toast.error("Failed to update business rule");
       }
     };

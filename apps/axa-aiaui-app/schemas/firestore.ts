@@ -35,6 +35,7 @@ export const businessRulesSchema = z.object({
   matchType: z.string().optional(),
   condition: z.string().optional(),
   results: z.string().optional(),
+  id: z.string().optional(),
 });
 
 export type BusinessRules = z.infer<typeof businessRulesSchema>;

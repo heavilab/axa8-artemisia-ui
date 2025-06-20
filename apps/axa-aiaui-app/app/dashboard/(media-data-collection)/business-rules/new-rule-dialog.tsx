@@ -38,7 +38,7 @@ interface NewRuleDialogProps {
 }
 
 interface EditRuleDialogProps {
-  initialRule: Partial<BusinessRules> & { id: string };
+  initialRule: Partial<BusinessRules> & { id?: string };
   onSubmit: (updates: Partial<BusinessRules>) => void;
   agency: string;
   open: boolean;
@@ -352,10 +352,7 @@ export function EditRuleDialog({
   const [matchType, setMatchType] = useState(initialRule.matchType || "");
   const [condition, setCondition] = useState(initialRule.condition || "");
   const [results, setResults] = useState(initialRule.results || "");
-  const [checked, setChecked] = useState(true); // Assume valid for edit
-  const [checkStatus, setCheckStatus] = useState<null | "checked" | string>(
-    null
-  );
+  const [checked] = useState(true); // Assume valid for edit
 
   function handleSubmit() {
     if (!checked) return;

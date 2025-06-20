@@ -12,6 +12,7 @@ import {
   Timestamp,
   addDoc,
   getDoc,
+  FieldValue,
 } from "firebase/firestore";
 
 export async function deleteSetById(setId: string) {
@@ -114,7 +115,7 @@ export async function publishDraftAsMain({
  */
 export async function updateDraftRuleById(
   ruleId: string,
-  updates: { [key: string]: any }
+  updates: { [key: string]: FieldValue | Partial<unknown> | undefined }
 ) {
   const ruleRef = doc(db, "businessRules", ruleId);
   const ruleSnap = await getDoc(ruleRef);
