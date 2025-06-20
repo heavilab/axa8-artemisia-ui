@@ -21,6 +21,8 @@ import {
 import { exportToCSV } from "@/lib/utils/csv";
 import { Combobox } from "@/components/ui/combobox";
 import { Filter as FilterIcon } from "lucide-react";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface Props {
   sets: string[];
@@ -245,6 +247,24 @@ export function BusinessRulesTabs({
           matchType,
         ].filter(Boolean).length;
 
+        // Get draft context for new rule
+        const draftContext = rows[0] || {};
+        const handleCreateRule = async (rule: any) => {
+          // Compose the new rule object
+          const newRule = {
+            ...rule,
+            setId,
+            country: draftContext.country,
+            entity: draftContext.entity,
+            agency: draftContext.agency,
+            status: "draft",
+            createdAt: Timestamp.now(),
+            createdBy: draftContext.createdBy || "",
+          };
+          await addDoc(collection(db, "businessRules"), newRule);
+          await onRefresh();
+        };
+
         return (
           <TabsContent key={setId} value={setId} className="mt-4 space-y-4">
             <div className="flex justify-between items-center gap-4 flex-wrap">
@@ -359,10 +379,7 @@ export function BusinessRulesTabs({
               </div>
               <div className="flex gap-2 ">
                 {!isMain && (
-                  <NewRuleDialog
-                    onSubmit={(rule) => alert(JSON.stringify(rule))}
-                    agency={agency}
-                  />
+                  <NewRuleDialog onSubmit={handleCreateRule} agency={agency} />
                 )}
                 {!isMain && (
                   <Button

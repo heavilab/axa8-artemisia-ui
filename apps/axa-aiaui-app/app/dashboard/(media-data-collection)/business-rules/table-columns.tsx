@@ -13,6 +13,15 @@ import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function getColumns({
   isEditable,
@@ -94,49 +103,74 @@ export function getColumns({
 
   if (!isEditable) return base;
 
+  function ActionCell({ row }: { row: any }) {
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const handleDelete = async () => {
+      try {
+        const docId = row.original.id;
+        await deleteDoc(doc(db, "businessRules", docId));
+        toast.success("Business rule deleted successfully");
+        if (onRefresh) {
+          await onRefresh();
+        }
+      } catch (error) {
+        console.error("Error deleting business rule:", error);
+        toast.error("Failed to delete business rule");
+      }
+    };
+    return (
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5 p-0 flex items-center justify-center"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => setConfirmOpen(true)}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Business Rule</DialogTitle>
+            </DialogHeader>
+            <p>Are you sure you want to delete this business rule?</p>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  await handleDelete();
+                  setConfirmOpen(false);
+                }}
+              >
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
   return [
     ...base,
     {
       id: "actions",
-      cell: ({ row }) => {
-        const handleDelete = async () => {
-          try {
-            // Get the document ID from the row
-            const docId = row.id;
-            await deleteDoc(doc(db, "businessRules", docId));
-            toast.success("Business rule deleted successfully");
-            if (onRefresh) {
-              await onRefresh();
-            }
-          } catch (error) {
-            console.error("Error deleting business rule:", error);
-            toast.error("Failed to delete business rule");
-          }
-        };
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-5 w-5 p-0 flex items-center justify-center"
-              >
-                <MoreVertical className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={handleDelete}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
+      cell: ({ row }) => <ActionCell row={row} />,
     },
   ];
 }

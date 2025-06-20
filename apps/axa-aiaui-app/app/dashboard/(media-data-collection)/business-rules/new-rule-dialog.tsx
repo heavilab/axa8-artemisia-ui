@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Check } from "lucide-react";
 import { Combobox } from "@/components/ui/combobox";
 
 interface NewRuleDialogProps {
@@ -119,6 +119,9 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
   const [condition, setCondition] = useState("");
   const [results, setResults] = useState("");
   const [checked, setChecked] = useState(false);
+  const [checkStatus, setCheckStatus] = useState<null | "checked" | string>(
+    null
+  );
 
   function resetForm() {
     setDataSource("");
@@ -128,6 +131,32 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
     setCondition("");
     setResults("");
     setChecked(false);
+  }
+
+  function resetCheckStatus() {
+    setCheckStatus(null);
+    setChecked(false);
+  }
+
+  function handleDataSource(val: string) {
+    setDataSource(val);
+    resetCheckStatus();
+  }
+  function handleField(val: string) {
+    setField(val);
+    resetCheckStatus();
+  }
+  function handleTargetField(val: string) {
+    setTargetField(val);
+    resetCheckStatus();
+  }
+  function handleMatchType(val: string) {
+    setMatchType(val);
+    resetCheckStatus();
+  }
+  function handleCondition(e: React.ChangeEvent<HTMLInputElement>) {
+    setCondition(e.target.value);
+    resetCheckStatus();
   }
 
   function handleSubmit() {
@@ -146,12 +175,54 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
   }
 
   function handleCheck() {
-    // Dummy logic to simulate a check
-    if (dataSource && field && targetField && matchType) {
-      setChecked(true);
-    } else {
+    if (!(dataSource && field && targetField && matchType)) {
+      setCheckStatus(null);
       setChecked(false);
+      return;
     }
+    // Helper to check quoted string and extract inside
+    const isQuoted = (str: string) =>
+      str.startsWith('"') && str.endsWith('"') && str.length > 1;
+    const insideQuotes = (str: string) => str.slice(1, -1);
+    if (matchType === "regexp-contains" || matchType === "regexp-extract") {
+      if (!condition.trim()) {
+        setCheckStatus("Enter a test string in condition");
+        setChecked(false);
+        return;
+      }
+      if (!results.trim() || !isQuoted(results.trim())) {
+        setCheckStatus("Results must be a quoted regexp");
+        setChecked(false);
+        return;
+      }
+      let regexp;
+      try {
+        regexp = new RegExp(insideQuotes(results.trim()));
+      } catch (e) {
+        setCheckStatus("Invalid regexp in results");
+        setChecked(false);
+        return;
+      }
+      if (!regexp.test(condition.trim())) {
+        setCheckStatus("The regexp does not match the test string");
+        setChecked(false);
+        return;
+      }
+    } else if (matchType === "calculation") {
+      if (!condition.trim()) {
+        setCheckStatus("Enter a calculation rule in condition");
+        setChecked(false);
+        return;
+      }
+    } else if (matchType === "default") {
+      if (!results.trim()) {
+        setCheckStatus("Enter a default value in results");
+        setChecked(false);
+        return;
+      }
+    }
+    setCheckStatus("checked");
+    setChecked(true);
   }
 
   // Helper to convert array to combobox options
@@ -180,7 +251,7 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
               label="Data Source"
               options={toOptions(dataSources)}
               value={dataSource}
-              onChange={setDataSource}
+              onChange={handleDataSource}
               placeholder="Select data source"
             />
           </div>
@@ -189,7 +260,7 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
               label="Field"
               options={toOptions(fields)}
               value={field}
-              onChange={setField}
+              onChange={handleField}
               placeholder="Select field"
             />
           </div>
@@ -198,13 +269,13 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
               label="Target Field"
               options={toOptions(targetFields)}
               value={targetField}
-              onChange={setTargetField}
+              onChange={handleTargetField}
               placeholder="Select target field"
             />
           </div>
           <div className="grid gap-2">
             <Label>Match Type</Label>
-            <Select value={matchType} onValueChange={setMatchType}>
+            <Select value={matchType} onValueChange={handleMatchType}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select match type" />
               </SelectTrigger>
@@ -221,7 +292,7 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
             <Input
               className="w-full"
               value={condition}
-              onChange={(e) => setCondition(e.target.value)}
+              onChange={handleCondition}
             />
           </div>
           <div className="grid gap-2">
@@ -234,9 +305,22 @@ export function NewRuleDialog({ onSubmit, agency }: NewRuleDialogProps) {
           </div>
         </div>
         <DialogFooter className="flex justify-between">
-          <Button variant="secondary" onClick={handleCheck}>
-            Check
-          </Button>
+          {checkStatus === "checked" ? (
+            <Button
+              variant="secondary"
+              disabled
+              className="opacity-70 cursor-default"
+            >
+              <Check className="w-4 h-4 mr-1" /> Checked
+            </Button>
+          ) : (
+            <Button variant="secondary" onClick={handleCheck}>
+              Check
+            </Button>
+          )}
+          {checkStatus && checkStatus !== "checked" && (
+            <span className="text-destructive text-sm ml-2">{checkStatus}</span>
+          )}
           <Button onClick={handleSubmit} disabled={!checked}>
             Create
           </Button>

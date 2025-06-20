@@ -27,11 +27,11 @@ export function BusinessRulesTable({
   targetFieldFilterActive = false,
   matchTypeFilterActive = false,
 }: Props) {
-  const filtered = data.filter(
-    (row) =>
-      row.field?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      row.targetField?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      row.dataSource?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filtered = data.filter((row) =>
+    Object.values(row)
+      .join(" ")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
   );
 
   const columns = useMemo(

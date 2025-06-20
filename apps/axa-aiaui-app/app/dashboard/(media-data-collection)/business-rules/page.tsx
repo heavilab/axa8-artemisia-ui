@@ -19,7 +19,9 @@ export default function SourceFieldMappingsPage() {
   const fetchMappings = useCallback(async () => {
     const q = query(collection(db, "businessRules"));
     const snapshot = await getDocs(q);
-    const all = snapshot.docs.map((doc) => doc.data() as BusinessRules);
+    const all = snapshot.docs.map(
+      (doc) => ({ id: doc.id, ...doc.data() } as unknown as BusinessRules)
+    );
 
     console.log("All business rules:", all);
     console.log("Current user email:", user?.email);
