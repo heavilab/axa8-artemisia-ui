@@ -15,12 +15,7 @@ export default function Page() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl">
         <Card title="Business Rules" href="/dashboard/business-rules" />
-        <Card
-          title="Business Rules Sets"
-          href="/dashboard/business-rules-sets"
-        />
         <Card title="Node Mappings" disabled />
-        <Card title="Node Mappings Sets" disabled />
       </div>
     </div>
   );

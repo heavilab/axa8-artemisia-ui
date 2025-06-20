@@ -80,9 +80,6 @@ async function seed() {
   for (const collectionName of collectionNames) {
     const { enrich } = seedConfigs[collectionName];
     await importFromCSV(collectionName, enrich);
-    if (enrich) {
-      await importFromCSV(collectionName, enrich, "draft", "1");
-    }
   }
 
   console.log("🎉 Done.");

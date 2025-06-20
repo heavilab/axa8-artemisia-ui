@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -28,40 +28,46 @@ import {
   SelectTrigger,
   SelectContent,
   SelectItem,
+  SelectValue,
 } from "@/components/ui/select";
 import { MoreVertical } from "lucide-react";
 import { toast } from "sonner";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
 
 type User = {
   email: string;
   agency: string;
   country: string;
   brand: string;
+  entity: string;
   role: "Admin" | "Standard" | "Viewer";
 };
-
-const usersMock: User[] = [
-  {
-    email: "a@axa.com",
-    agency: "OMD",
-    country: "FR",
-    brand: "AXA France",
-    role: "Admin",
-  },
-  {
-    email: "b@axa.com",
-    agency: "Havas",
-    country: "ES",
-    brand: "AXA España",
-    role: "Viewer",
-  },
-];
 
 export default function AccountPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [dialog, setDialog] = useState<"edit" | "role" | null>(null);
   const [form, setForm] = useState<Partial<User>>({});
-  const [users, setUsers] = useState(usersMock);
+  const [users, setUsers] = useState<User[]>([]);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingRole, setPendingRole] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      const snapshot = await getDocs(collection(db, "users"));
+      const usersData = snapshot.docs.map((doc) => doc.data() as User);
+      setUsers(usersData);
+    }
+    fetchUsers();
+  }, []);
 
   const openEdit = (user: User) => {
     setSelectedUser(user);
@@ -75,7 +81,35 @@ export default function AccountPage() {
     setDialog("role");
   };
 
-  const saveChanges = () => {
+  const handleRoleChange = (val: string) => {
+    setPendingRole(val);
+    setConfirmOpen(true);
+  };
+
+  const confirmRoleChange = async () => {
+    if (!selectedUser || !pendingRole) return;
+    setForm({ ...form, role: pendingRole as User["role"] });
+    setConfirmOpen(false);
+    await saveChangesWithRole(pendingRole as User["role"]);
+    setPendingRole(null);
+  };
+
+  const saveChangesWithRole = async (role: User["role"]) => {
+    if (!selectedUser) return;
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.email === selectedUser.email ? ({ ...u, ...form, role } as User) : u
+      )
+    );
+    setDialog(null);
+    toast("The changes were successfully saved");
+    if (role && role !== selectedUser.role) {
+      const userRef = doc(db, "users", selectedUser.email);
+      await updateDoc(userRef, { role });
+    }
+  };
+
+  const saveChanges = async () => {
     if (!selectedUser) return;
     setUsers((prev) =>
       prev.map((u) =>
@@ -84,6 +118,11 @@ export default function AccountPage() {
     );
     setDialog(null);
     toast("The changes were successfully saved");
+    // Update Firestore if role is changed
+    if (form.role && form.role !== selectedUser.role) {
+      const userRef = doc(db, "users", selectedUser.email);
+      await updateDoc(userRef, { role: form.role });
+    }
   };
 
   const formValid =
@@ -91,17 +130,25 @@ export default function AccountPage() {
       ? form.email && form.agency && form.country && form.brand
       : form.role;
 
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    await deleteDoc(doc(db, "users", userToDelete.email));
+    setUsers((prev) => prev.filter((u) => u.email !== userToDelete.email));
+    setDeleteDialogOpen(false);
+    setUserToDelete(null);
+    toast("User deleted successfully");
+  };
+
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">
-        Admin and User Access Management
-      </h1>
+      <h1 className="text-2xl font-bold mb-6">Admin Settings</h1>
       <Table>
         <TableHeader>
           <TableRow>
             <TableCell>Email</TableCell>
             <TableCell>Agency</TableCell>
             <TableCell>Country</TableCell>
+            <TableCell>Entity</TableCell>
             <TableCell>Brand</TableCell>
             <TableCell>Role</TableCell>
             <TableCell />
@@ -113,6 +160,7 @@ export default function AccountPage() {
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.agency}</TableCell>
               <TableCell>{user.country}</TableCell>
+              <TableCell>{user.entity}</TableCell>
               <TableCell>{user.brand}</TableCell>
               <TableCell>{user.role}</TableCell>
               <TableCell>
@@ -129,6 +177,15 @@ export default function AccountPage() {
                     <DropdownMenuItem onClick={() => openRole(user)}>
                       Manage Access
                     </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => {
+                        setUserToDelete(user);
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
+                      Delete
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
@@ -144,16 +201,12 @@ export default function AccountPage() {
             <DialogTitle>Manage Account Parameters Access</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <Input
-              placeholder="Email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-            />
+            <Input placeholder="Email" value={form.email} disabled />
             <Select
               value={form.agency}
               onValueChange={(val) => setForm({ ...form, agency: val })}
             >
-              <SelectTrigger>Agency</SelectTrigger>
+              <SelectTrigger className="w-full">Agency</SelectTrigger>
               <SelectContent>
                 <SelectItem value="OMD">OMD</SelectItem>
                 <SelectItem value="Havas">Havas</SelectItem>
@@ -163,20 +216,20 @@ export default function AccountPage() {
               value={form.country}
               onValueChange={(val) => setForm({ ...form, country: val })}
             >
-              <SelectTrigger>Country</SelectTrigger>
+              <SelectTrigger className="w-full">Country</SelectTrigger>
               <SelectContent>
                 <SelectItem value="FR">FR</SelectItem>
                 <SelectItem value="ES">ES</SelectItem>
               </SelectContent>
             </Select>
             <Select
-              value={form.brand}
-              onValueChange={(val) => setForm({ ...form, brand: val })}
+              value={form.entity}
+              onValueChange={(val) => setForm({ ...form, entity: val })}
             >
-              <SelectTrigger>Brand</SelectTrigger>
+              <SelectTrigger className="w-full">Entity</SelectTrigger>
               <SelectContent>
-                <SelectItem value="AXA France">AXA France</SelectItem>
-                <SelectItem value="AXA España">AXA España</SelectItem>
+                <SelectItem value="AXA">AXA</SelectItem>
+                <SelectItem value="AXA XL">AXA XL</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -199,13 +252,10 @@ export default function AccountPage() {
             </p>
           </DialogHeader>
           <div className="py-4">
-            <Select
-              value={form.role}
-              onValueChange={(val) =>
-                setForm({ ...form, role: val as User["role"] })
-              }
-            >
-              <SelectTrigger>Role</SelectTrigger>
+            <Select value={form.role} onValueChange={handleRoleChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a new role" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Admin">Admin</SelectItem>
                 <SelectItem value="Standard">Standard</SelectItem>
@@ -217,8 +267,48 @@ export default function AccountPage() {
             <Button variant="outline" onClick={() => setDialog(null)}>
               Cancel
             </Button>
-            <Button onClick={saveChanges} disabled={!formValid}>
-              Save changes
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm Role Change Dialog */}
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to change the role to{" "}
+              <strong>{pendingRole}</strong>?
+            </p>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmRoleChange}>Yes, change role</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete User Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete User</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to delete user{" "}
+              <strong>{userToDelete?.email}</strong>?
+            </p>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteUser}>
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>

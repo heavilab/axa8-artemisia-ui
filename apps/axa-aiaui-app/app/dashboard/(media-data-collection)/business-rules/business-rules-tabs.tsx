@@ -6,7 +6,7 @@ import { BusinessRulesTable } from "./business-rules-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { BookUp, Building, Filter } from "lucide-react";
+import { BookUp, Filter } from "lucide-react";
 import { NewRuleDialog } from "./new-rule-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -153,10 +153,6 @@ export function BusinessRulesTabs({
                 </Button>
               </div>
               <div className="flex gap-2 ">
-                <Badge variant="secondary">
-                  <Building />
-                  {country}-{entity}-{agency}
-                </Badge>
                 {!isMain && (
                   <NewRuleDialog
                     onSubmit={(rule) => alert(JSON.stringify(rule))}
@@ -212,11 +208,11 @@ function DeleteDraftDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button
-          className="text-xs font-bold px-1 text-muted-foreground hover:text-destructive"
+          className="text-xs font-bold px-1 text-muted-foreground hover:text-destructive h-5 flex items-center justify-center cursor-pointer"
           title="Delete draft"
           style={{ lineHeight: 1 }}
         >
-          X
+          ×
         </button>
       </DialogTrigger>
       <DialogContent>

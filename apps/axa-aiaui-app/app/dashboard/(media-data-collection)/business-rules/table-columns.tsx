@@ -12,6 +12,7 @@ import { MoreVertical, Trash2 } from "lucide-react";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 export function getColumns({
   isEditable,
@@ -21,8 +22,16 @@ export function getColumns({
   onRefresh?: () => void | Promise<void>;
 }): ColumnDef<BusinessRules>[] {
   const base: ColumnDef<BusinessRules>[] = [
+    {
+      id: "scope",
+      header: "Scope",
+      cell: ({ row }) => {
+        const { country, entity, agency } = row.original;
+        const scope = [country, entity, agency].filter(Boolean).join("-");
+        return <Badge variant="secondary">{scope}</Badge>;
+      },
+    },
     { accessorKey: "dataSource", header: "Data Source" },
-    { accessorKey: "agency", header: "Agency" },
     { accessorKey: "field", header: "Field" },
     { accessorKey: "targetField", header: "Target Field" },
     { accessorKey: "matchType", header: "Match Type" },
@@ -55,8 +64,12 @@ export function getColumns({
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <MoreVertical />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-5 w-5 p-0 flex items-center justify-center"
+              >
+                <MoreVertical className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

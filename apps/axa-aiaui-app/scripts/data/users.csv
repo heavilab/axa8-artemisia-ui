@@ -1,2 +1,5 @@
-email,firstName,lastName,role
-romain@heaviside.fr,Romain,Florentz,admin
+email,firstName,lastName,role,country,entity,agency
+romain@heaviside.fr,Romain,Florentz,Admin,,, 
+reda@heaviside.fr,Réda,El Mghazli,Admin,,, 
+claire@heaviside.fr,Claire,Bouissou,Admin,,, 
+monika@heaviside.fr,Monika,Sostak,Admin,,, 
