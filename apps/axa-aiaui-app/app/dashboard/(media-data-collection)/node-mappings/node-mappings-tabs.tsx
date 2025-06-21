@@ -70,10 +70,12 @@ export function NodeMappingsTabs({
       const query = searchQuery.toLowerCase();
       const searchableFields = [
         mapping.dataSource,
-        mapping.field,
-        mapping.targetField,
-        mapping.matchType,
+        mapping.advertiser,
+        mapping.nodeName,
+        mapping.fundingEntity,
+        mapping.mediaLevel_1,
       ]
+        .filter(Boolean) // Remove null/undefined values
         .join(" ")
         .toLowerCase();
       if (!searchableFields.includes(query)) return false;
