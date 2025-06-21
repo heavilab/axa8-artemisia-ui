@@ -114,3 +114,16 @@ export const businessClassificationLevelsSchema = z.object({
 export type BusinessClassificationLevels = z.infer<
   typeof businessClassificationLevelsSchema
 >;
+
+// Media Categorizations Schema
+export const mediaCategorizationsSchema = z.object({
+  parentName: z.string(),
+  name: z.string(),
+  definition: z.string(),
+  dataType: z.string(),
+  userId: z.string().optional(),
+  createdAt: z.any().optional(),
+  publishedAt: z.any().optional(),
+});
+
+export type MediaCategorizations = z.infer<typeof mediaCategorizationsSchema>;

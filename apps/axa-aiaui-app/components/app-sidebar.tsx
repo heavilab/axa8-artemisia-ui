@@ -105,6 +105,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/dashboard/business-classification-levels",
           isActive: pathname === "/dashboard/business-classification-levels",
         },
+        {
+          title: "Media Categorizations",
+          url: "/dashboard/media-categorizations",
+          isActive: pathname === "/dashboard/media-categorizations",
+        },
       ],
     },
     {

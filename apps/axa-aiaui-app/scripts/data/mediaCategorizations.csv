@@ -1,0 +1,45 @@
+parentName,name,definition,dataType
+/,tv,"Advertisements on traditional and addressable TV, as well as on connected TV sets that stream digital content, available nationally and locally.",Text
+/,audio,"Commercials on traditional radio, both general and targeted, along with digital streaming content, including podcasts, available nationally and locally.",Text
+/,print,"Ad content in printed formats like newspapers & magazines, available nationally and locally.",Text
+/,cinema,"Ads displayed in movie theaters, either before the main feature or throughout the theater complex.",Text
+/,d-ooh,"Customized advertising in public spaces, including billboards, transit posters, and digital screens, available nationally and locally.",Text
+/,paid-social,"Targeted ad placements on social media with the potential for personalized and interactive content, available nationally and locally.",Text
+/,paid-search,Advertisements placed on search engine results pages through search engine advertising.,Text
+/,digital-video,"Video ads used to market brands or products on digital platforms, including streaming services and website integrations.",Text
+/,online-display,"Web-based ads shown as graphical banners across site networks, which can be static or dynamic.",Text
+/,crossmedia-partnership,"Coordinated campaigns across at least two media channels, managed by specialized teams with one strategic partner, available nationally and locally.",Text
+/,referencing,"Refers to affiliate, aggregator and paid search programs or services.",Text
+/,other-levers,This is a catch-all category used to classify data that does not fit into the predefined categories (ie. Emailing).,Text
+tv,streaming-video,"Standard, bespoke or customed ads broadcasted on Addressable TV, Connected TV and OTT (Disney+, Prime Video, Netflix, Paramount+, AppleTV, Hulule, FireTV…). Ads on replay content ( TF1 replay, BBC iplayer as example…) are included. ",Text
+tv,broadcast-TV,Commercials aired during scheduled breaks in television programming.,Text
+tv,tv-sponsorship-event,Commercials aired outside the regular ad breaks during television programming.,Text
+audio,streaming-audio,"Ads on streaming audio services, digital radio, and podcasts accessible via mobile and desktop.",Text
+audio,broadcast-radio,Ads broadcasted during scheduled breaks in radio programming.,Text
+audio,radio-sponsorship-event,Audio commercials played outside of the regular ad breaks in radio programming.,Text
+print,magazine,Printed advertisements integrated within magazine content.,Text
+print,newspaper,Printed advertisements integrated within newspaper content.,Text
+print,print-event,Custom ad formats or placements in print mediums like magazines or newspapers.,Text
+cinema,cinema,"Advertisements displayed in cinemas before film screenings or during the intermission, including custom deals with cinema networks or owners.  ",Text
+d-ooh,dooh,Digital screen advertising in public spaces with the option for bespoke content or placements.,Text
+d-ooh,d-ooh-event,Customized outdoor or digital outdoor advertising campaigns.,Text
+d-ooh,ooh,"Traditional outdoor advertising formats including billboards, transit posters, and street furniture.",Text
+paid-social,brand-engagement,Campaigns designed to encourage interaction and viewer engagement.,Text
+paid-social,brand-reach,Campaigns aimed at maximizing the number of people who see the advertisement.,Text
+paid-social,performance,"Campaigns focused on driving specific actions such as conversions, traffic, leads, or app downloads.",Text
+paid-social,influence,Custom content integrated with influencer marketing to leverage their audience.,Text
+paid-search,paid-search,Advertisements placed on search engine results pages through search engine advertising.,Text
+digital-video,instream-video,"Video ads that play before, during, or after the streaming video content (pre-roll, mid-roll & post-roll) include live streaming content… (Youtube, Twitch, Kick…)",Text
+digital-video,outstream-video,"Video banners that are served outside of a video stream, excluding native ads.",Text
+online-display,native,"Text, image or video ads that match the look and feel of the content on the website where they appear.",Text
+online-display,non-standard-format,"Large-scale display ads that fall outside standard industry size guidelines, excluding native ads. As examples, Takeover, Parallax, Expand / Interactive formats…",Text
+online-display,standard-format,"Standard-sized digital display ads conforming to industry guidelines (desktop and mobile standard IAB formats, excluding native ads).",Text
+crossmedia-partnership,online,Digital video and/or online display and/or paid social integrated advertising across multiple media channels with one partner.,Text
+crossmedia-partnership,others,Integrated advertising across multiple media channels with one partner (exclude digital video and/or online display and/or paid social and/or TV).,Text
+crossmedia-partnership,tv,TV Integrated advertising across multiple media channels with one partner.,Text
+referencing,affiliate,Advertising within affiliate network programs that reward partners for traffic or sales generated.,Text
+referencing,aggregator,Ad placements on platforms that compile and compare offers from different businesses.,Text
+other-levers,others,This is a catch-all category used to classify data that does not fit into the predefined categories (ie. Emailing & Direct Mail).,Text
+other-levers,pr-client-event,"Messages & (bespoke) event spread through various media to influence opinions, foster a positive image, and maintain a favorable relationship with the target audience, stakeholders, clients and the broader public.",Text
+other-levers,special-operations,"This term includes marketing campaigns or initiatives that are out of the ordinary and offer an exceptional presence for a brand. This could include innovative disposals, viral campaigns, strategic partnerships, or any other marketing activity designed to have a significant and often unique impact.",Text
+other-levers,sport-event-sponsorship,"Refers to the financial or in-kind support of a sports team or event by a brand, where in return, the sponsor's brand logo or message is prominently displayed on the team's apparel, gear, equipment or event to gain visibility and association with the team's & events values, fan base and public image.",Text

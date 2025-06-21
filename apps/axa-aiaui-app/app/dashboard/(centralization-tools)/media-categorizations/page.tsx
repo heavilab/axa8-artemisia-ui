@@ -4,17 +4,16 @@ import { useEffect, useState, useRef } from "react";
 import {
   collection,
   getDocs,
+  orderBy,
+  query,
   deleteDoc,
   addDoc,
-  query,
   where,
-  orderBy,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { BusinessClassificationLevels } from "@/schemas/firestore";
+import { MediaCategorizations } from "@/schemas/firestore";
 import { exportToCSV } from "@/lib/utils/csv";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Collapsible,
@@ -34,18 +33,16 @@ import Papa, { ParseResult } from "papaparse";
 import { useUser } from "@/lib/hooks/use-user";
 import { ChevronDown, ChevronRight, FileSpreadsheet } from "lucide-react";
 
-const REQUIRED_COLUMNS = [
-  "term",
-  "businessClassificationLevel1",
-  "definition",
-  "examples",
-];
+const REQUIRED_COLUMNS = ["name", "parentName", "definition", "dataType"];
 
-export default function BusinessClassificationLevelsPage() {
-  const [data, setData] = useState<
-    (BusinessClassificationLevels & { id: string })[]
-  >([]);
+export default function MediaCategorizationsPage() {
+  const [data, setData] = useState<(MediaCategorizations & { id: string })[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
+  const [expandedParents, setExpandedParents] = useState<Set<string>>(
+    new Set()
+  );
   const [dialogOpen, setDialogOpen] = useState(false);
   const [sanityResult, setSanityResult] = useState<null | {
     ok: boolean;
@@ -57,31 +54,22 @@ export default function BusinessClassificationLevelsPage() {
   const { user, loading: userLoading } = useUser();
   const [profile, setProfile] = useState<{ role: string } | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
-  const [expandedParents, setExpandedParents] = useState<Set<string>>(
-    new Set()
-  );
 
-  const fetchData = async () => {
-    try {
+  useEffect(() => {
+    const fetchData = async () => {
       setLoading(true);
       const q = query(
-        collection(db, "businessClassificationLevels"),
+        collection(db, "mediaCategorizations"),
         orderBy("createdAt", "desc")
       );
       const querySnapshot = await getDocs(q);
       const mapped = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as (BusinessClassificationLevels & { id: string })[];
+      })) as (MediaCategorizations & { id: string })[];
       setData(mapped);
-    } catch (error) {
-      console.error("Error fetching business classification levels:", error);
-    } finally {
       setLoading(false);
-    }
-  };
-
-  useEffect(() => {
+    };
     fetchData();
   }, []);
 
@@ -129,20 +117,18 @@ export default function BusinessClassificationLevelsPage() {
 
   async function handlePublish() {
     setUploading(true);
-    // Remove all existing business classification levels
-    const snapshot = await getDocs(
-      collection(db, "businessClassificationLevels")
-    );
+    // Remove all existing media categorizations
+    const snapshot = await getDocs(collection(db, "mediaCategorizations"));
     const deletions = snapshot.docs.map((doc) => deleteDoc(doc.ref));
     await Promise.all(deletions);
-    // Add new business classification levels
+    // Add new media categorizations
     for (const row of parsedRows) {
       if (typeof row === "object" && row !== null && "id" in row) {
         const rest = { ...(row as Record<string, unknown>) };
         delete (rest as Record<string, unknown>).id;
-        await addDoc(collection(db, "businessClassificationLevels"), rest);
+        await addDoc(collection(db, "mediaCategorizations"), rest);
       } else {
-        await addDoc(collection(db, "businessClassificationLevels"), row);
+        await addDoc(collection(db, "mediaCategorizations"), row);
       }
     }
     setUploading(false);
@@ -151,37 +137,25 @@ export default function BusinessClassificationLevelsPage() {
   }
 
   // Separate parents and children
-  const parents = data.filter(
-    (item) => item.businessClassificationLevel1 === "/"
-  );
-  const children = data.filter(
-    (item) => item.businessClassificationLevel1 !== "/"
-  );
-
-  // Debug logging
-  console.log("All data:", data);
-  console.log("Parents:", parents);
-  console.log("Children:", children);
+  const parents = data.filter((item) => item.parentName === "/");
+  const children = data.filter((item) => item.parentName !== "/");
 
   // Group children by their parent
   const childrenByParent = children.reduce((acc, child) => {
-    const parent = child.businessClassificationLevel1;
+    const parent = child.parentName;
     if (!acc[parent]) {
       acc[parent] = [];
     }
     acc[parent].push(child);
     return acc;
-  }, {} as Record<string, (BusinessClassificationLevels & { id: string })[]>);
+  }, {} as Record<string, (MediaCategorizations & { id: string })[]>);
 
-  // Debug logging
-  console.log("Children by parent:", childrenByParent);
-
-  const toggleParent = (parentTerm: string) => {
+  const toggleParent = (parentName: string) => {
     const newExpanded = new Set(expandedParents);
-    if (newExpanded.has(parentTerm)) {
-      newExpanded.delete(parentTerm);
+    if (newExpanded.has(parentName)) {
+      newExpanded.delete(parentName);
     } else {
-      newExpanded.add(parentTerm);
+      newExpanded.add(parentName);
     }
     setExpandedParents(newExpanded);
   };
@@ -195,7 +169,7 @@ export default function BusinessClassificationLevelsPage() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-muted-foreground">
-            Loading business classification levels...
+            Loading media categorizations...
           </div>
         </div>
       </div>
@@ -206,11 +180,9 @@ export default function BusinessClassificationLevelsPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">
-            Business Classification Levels
-          </h1>
+          <h1 className="text-2xl font-semibold">Media Categorizations</h1>
           <p className="text-muted-foreground mt-2">
-            Hierarchical business classification with definitions and examples
+            Hierarchical media categorizations with definitions
           </p>
         </div>
         <div className="flex gap-2">
@@ -218,13 +190,12 @@ export default function BusinessClassificationLevelsPage() {
             variant="outline"
             className="cursor-pointer"
             onClick={() => {
-              // Remove Firestore 'id' from each row before export
               const exportData = data.map((row) => {
                 const copy = { ...row };
                 delete (copy as Record<string, unknown>).id;
                 return copy;
               });
-              exportToCSV(exportData, "business-classification-levels");
+              exportToCSV(exportData, "media-categorizations");
             }}
           >
             Download
@@ -239,12 +210,10 @@ export default function BusinessClassificationLevelsPage() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>
-                    Update Business Classification Levels
-                  </DialogTitle>
+                  <DialogTitle>Update Media Categorizations</DialogTitle>
                   <DialogDescription>
-                    Upload a CSV file with columns: term,
-                    businessClassificationLevel1, definition, examples
+                    Upload a CSV file with columns: name, parentName,
+                    definition, dataType
                   </DialogDescription>
                 </DialogHeader>
                 <input
@@ -277,21 +246,20 @@ export default function BusinessClassificationLevelsPage() {
           )}
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Parent Categories */}
         {parents.map((parent) => {
-          const parentChildren = children.filter(
-            (child) => child.businessClassificationLevel1 === parent.term
+          const filteredParentChildren = children.filter(
+            (child) => child.parentName === parent.name
           );
-          const isExpanded = expandedParents.has(parent.term);
-          const hasChildren = parentChildren.length > 0;
+          const isExpanded = expandedParents.has(parent.name);
+          const hasChildren = filteredParentChildren.length > 0;
 
           return (
             <Collapsible
               key={parent.id}
               open={isExpanded}
-              onOpenChange={() => toggleParent(parent.term)}
+              onOpenChange={() => toggleParent(parent.name)}
             >
               <div className="border rounded-lg">
                 <CollapsibleTrigger asChild>
@@ -307,7 +275,7 @@ export default function BusinessClassificationLevelsPage() {
                         <div className="w-4 h-4" />
                       )}
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold">{parent.term}</h3>
+                        <h3 className="text-lg font-semibold">{parent.name}</h3>
                         <p
                           className={`text-sm text-muted-foreground mt-1 ${
                             !isExpanded ? "line-clamp-2" : ""
@@ -318,7 +286,7 @@ export default function BusinessClassificationLevelsPage() {
                       </div>
                       {hasChildren && (
                         <Badge variant="secondary">
-                          {parentChildren.length} subcategories
+                          {filteredParentChildren.length} subcategories
                         </Badge>
                       )}
                     </div>
@@ -328,7 +296,7 @@ export default function BusinessClassificationLevelsPage() {
                   <CollapsibleContent>
                     <div className="p-4">
                       <div className="space-y-3 pl-6 border-l-2 border-muted">
-                        {parentChildren.map((child) => (
+                        {filteredParentChildren.map((child) => (
                           <div
                             key={child.id}
                             className="py-3 border-b border-muted/30 last:border-b-0"
@@ -336,18 +304,18 @@ export default function BusinessClassificationLevelsPage() {
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex-1">
                                 <h4 className="font-semibold text-sm mb-1">
-                                  {child.term}
+                                  {child.name}
                                 </h4>
                                 <p className="text-sm text-muted-foreground">
                                   {child.definition}
                                 </p>
                               </div>
-                              {child.examples && (
+                              {child.dataType && (
                                 <Badge
                                   variant="outline"
                                   className="text-xs shrink-0"
                                 >
-                                  Examples
+                                  {child.dataType}
                                 </Badge>
                               )}
                             </div>
@@ -362,10 +330,10 @@ export default function BusinessClassificationLevelsPage() {
           );
         })}
         {/* Show message if no results */}
-        {parents.length === 0 && children.length === 0 && (
+        {parents.length === 0 && (
           <div className="col-span-full text-center py-12">
             <p className="text-muted-foreground">
-              No business classifications found.
+              No media categorizations available.
             </p>
           </div>
         )}

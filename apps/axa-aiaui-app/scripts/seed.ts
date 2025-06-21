@@ -22,6 +22,7 @@ const collections: Record<string, { enrich?: boolean }> = {
   currencyExchangeRates: {}, // regular load
   dataGlossary: {}, // regular load
   businessClassificationLevels: {}, // regular load
+  mediaCategorizations: {}, // regular load
 };
 
 async function clearCollection(collectionName: string) {
@@ -96,6 +97,14 @@ async function importFromCSV(
               createdBy: "romain@heaviside.fr",
             };
           } else if (collectionName === "businessClassificationLevels") {
+            enriched = {
+              ...entry,
+              userId: "romain@heaviside.fr",
+              createdAt: new Date(),
+              publishedAt: new Date(),
+              createdBy: "romain@heaviside.fr",
+            };
+          } else if (collectionName === "mediaCategorizations") {
             enriched = {
               ...entry,
               userId: "romain@heaviside.fr",
