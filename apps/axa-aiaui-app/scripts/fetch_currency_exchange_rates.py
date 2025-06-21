@@ -29,7 +29,7 @@ def get_ecb_rates():
     return rates
 
 
-def export_to_csv(rates, filename="/Users/romflorentz/Downloads/ecb_rates.csv"):
+def export_to_csv(rates, filename="/data/currentExchangeRates.csv"):
     with open(filename, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["forex", "value", "date"])
@@ -39,4 +39,4 @@ def export_to_csv(rates, filename="/Users/romflorentz/Downloads/ecb_rates.csv"):
 if __name__ == "__main__":
     rates = get_ecb_rates()
     export_to_csv(rates)
-    print(f"✅ Exported {len(rates)} exchange rates to ecb_rates.csv")
+    print(f"✅ Exported {len(rates)} exchange rates to data/currentExchangeRates.csv")

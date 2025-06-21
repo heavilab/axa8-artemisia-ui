@@ -11,7 +11,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { ForexSpots } from "@/schemas/firestore";
+import { CurrencyExchangeRates } from "@/schemas/firestore";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { exportToCSV } from "@/lib/utils/csv";
@@ -32,7 +32,7 @@ import { useUser } from "@/lib/hooks/use-user";
 const REQUIRED_COLUMNS = ["forex", "value", "date"];
 
 export default function CurrencyExchangeRatesPage() {
-  const [data, setData] = useState<ForexSpots[]>([]);
+  const [data, setData] = useState<CurrencyExchangeRates[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -51,14 +51,14 @@ export default function CurrencyExchangeRatesPage() {
     try {
       setLoading(true);
       const q = query(
-        collection(db, "forexSpots"),
+        collection(db, "currencyExchangeRates"),
         orderBy("createdAt", "desc")
       );
       const querySnapshot = await getDocs(q);
       const mapped = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as ForexSpots[];
+      })) as CurrencyExchangeRates[];
       setData(mapped);
     } catch (error) {
       console.error("Error fetching currency exchange rates:", error);
@@ -115,18 +115,18 @@ export default function CurrencyExchangeRatesPage() {
 
   async function handlePublish() {
     setUploading(true);
-    // Remove all existing forex spots
-    const snapshot = await getDocs(collection(db, "forexSpots"));
+    // Remove all existing currency exchange rates
+    const snapshot = await getDocs(collection(db, "currencyExchangeRates"));
     const deletions = snapshot.docs.map((doc) => deleteDoc(doc.ref));
     await Promise.all(deletions);
-    // Add new forex spots
+    // Add new currency exchange rates
     for (const row of parsedRows) {
       if (typeof row === "object" && row !== null && "id" in row) {
         const rest = { ...(row as Record<string, unknown>) };
         delete (rest as Partial<typeof rest>).id;
-        await addDoc(collection(db, "forexSpots"), rest);
+        await addDoc(collection(db, "currencyExchangeRates"), rest);
       } else {
-        await addDoc(collection(db, "forexSpots"), row);
+        await addDoc(collection(db, "currencyExchangeRates"), row);
       }
     }
     setUploading(false);

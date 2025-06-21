@@ -2,9 +2,9 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { ChevronsUpDown } from "lucide-react";
-import { ForexSpots } from "@/schemas/firestore";
+import { CurrencyExchangeRates } from "@/schemas/firestore";
 
-export const columns: ColumnDef<ForexSpots>[] = [
+export const columns: ColumnDef<CurrencyExchangeRates>[] = [
   {
     accessorKey: "forex",
     enableSorting: true,

@@ -53,14 +53,14 @@ export const countrySchema = z.object({
 export type Country = z.infer<typeof countrySchema>;
 
 // Forex Spots Schema
-export const forexSpotsSchema = z.object({
+export const currencyExchangeRatesSchema = z.object({
   forex: z.string(), // Currency pair e.g., "EUR/USD"
   value: z.number(), // Exchange rate value
   date: z.string(), // Date in YYYY-MM-DD format
   id: z.string().optional(),
 });
 
-export type ForexSpots = z.infer<typeof forexSpotsSchema>;
+export type CurrencyExchangeRates = z.infer<typeof currencyExchangeRatesSchema>;
 
 // Node Mappings Schema
 export const nodeMappingsSchema = z.object({

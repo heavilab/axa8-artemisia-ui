@@ -19,7 +19,7 @@ const seedConfigs: Record<string, { enrich?: boolean }> = {
   users: {}, // regular load
   businessRules: { enrich: true }, // requires enrichment
   nodeMappings: {}, // regular load
-  forexSpots: {}, // regular load
+  currencyExchangeRates: {}, // regular load
 };
 
 async function clearCollection(collectionName: string) {
@@ -77,7 +77,7 @@ async function importFromCSV(
               publishedAt: Timestamp.now(),
               createdBy: "romain@heaviside.fr",
             };
-          } else if (collectionName === "forexSpots") {
+          } else if (collectionName === "currencyExchangeRates") {
             enriched = {
               ...entry,
               value: parseFloat(entry.value) || 0, // Convert value to number
