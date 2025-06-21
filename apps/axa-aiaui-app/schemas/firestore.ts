@@ -99,3 +99,18 @@ export const dataGlossarySchema = z.object({
 });
 
 export type DataGlossary = z.infer<typeof dataGlossarySchema>;
+
+// Business Classification Levels Schema
+export const businessClassificationLevelsSchema = z.object({
+  term: z.string(),
+  businessClassificationLevel1: z.string(),
+  definition: z.string(),
+  examples: z.string(),
+  userId: z.string().optional(),
+  createdAt: z.any().optional(),
+  publishedAt: z.any().optional(),
+});
+
+export type BusinessClassificationLevels = z.infer<
+  typeof businessClassificationLevelsSchema
+>;

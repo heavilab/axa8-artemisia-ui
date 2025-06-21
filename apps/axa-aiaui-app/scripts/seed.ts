@@ -21,6 +21,7 @@ const collections: Record<string, { enrich?: boolean }> = {
   nodeMappings: {}, // regular load
   currencyExchangeRates: {}, // regular load
   dataGlossary: {}, // regular load
+  businessClassificationLevels: {}, // regular load
 };
 
 async function clearCollection(collectionName: string) {
@@ -87,6 +88,14 @@ async function importFromCSV(
               createdBy: "romain@heaviside.fr",
             };
           } else if (collectionName === "dataGlossary") {
+            enriched = {
+              ...entry,
+              userId: "romain@heaviside.fr",
+              createdAt: new Date(),
+              publishedAt: new Date(),
+              createdBy: "romain@heaviside.fr",
+            };
+          } else if (collectionName === "businessClassificationLevels") {
             enriched = {
               ...entry,
               userId: "romain@heaviside.fr",

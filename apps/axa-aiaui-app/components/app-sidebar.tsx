@@ -100,6 +100,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/dashboard/data-glossary",
           isActive: pathname === "/dashboard/data-glossary",
         },
+        {
+          title: "Business Classification Levels",
+          url: "/dashboard/business-classification-levels",
+          isActive: pathname === "/dashboard/business-classification-levels",
+        },
       ],
     },
     {
