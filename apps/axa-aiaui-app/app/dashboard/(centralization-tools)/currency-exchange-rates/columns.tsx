@@ -42,11 +42,12 @@ export const columns: ColumnDef<CurrencyExchangeRates>[] = [
       </button>
     ),
     cell: ({ row }) => {
-      const value = row.getValue("value") as number;
+      const value = row.getValue("value");
+      const num = typeof value === "number" ? value : Number(value);
       return (
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
-            {value.toFixed(4)}
+            {isNaN(num) ? "" : num.toFixed(4)}
           </span>
         </div>
       );

@@ -1,0 +1,104 @@
+priorityOnline,priorityOffline,dataFieldName,outputType,description,example
+MUST HAVE,SHOULD HAVE,data-source,string,Tool or channel from which the data are being collected,"dv360, xandr, popcorn, ooh, print"
+MUST HAVE,MUST HAVE,advertiser,string,The advertiser used to deliver the ad within a specific media platform,"axa-fr, yuzzu_es_branding"
+MUST HAVE,MUST HAVE,agency,string,Media agency which operates the advertising campaign,"wpp, omd, publicis, dentsu"
+MUST HAVE,MUST HAVE,entity,dropdown-list,Shortened name of the AXA's legal entity conducting the media campaign based on the dropdownlist available in this file,"axa-sa, yuzzu-be, axa-tianping, axa-es-seguros"
+MUST HAVE,MUST HAVE,funding-entity,dropdown-list,The entity financing the media campaign based on the dropdownlist available in this file,"axa-sa, yuzzu-be, axa-tianping, axa-es-seguros"
+MUST HAVE,MUST HAVE,data-currency,dropdown-list,Currency of the financial resources allocated for the media campaign (based on ISO Code 4217),"eur, usd, gbp"
+MUST HAVE,MUST HAVE,language,dropdown-list,Language used in the media material to communicate with the target audience (ISO Code 639-2),"fr, en, de"
+MUST HAVE,MUST HAVE,country,dropdown-list,"The country field defines the country in which the media campaign is being displayed. The format is a two letters code (ISO 3166 – Alpha 2).
+
+For local specificities such as Northern Ireland, the ISO code ""xi"" must be used. Additionally, when global campaigns are displayed on several not-identified countries, the ISO code used must be ""zz""","fr, gb, it, zz"
+MUST HAVE,MUST HAVE,stream,dropdown-list,"Define if which of these two objectives are related to the campaign :
+- [brand] - Campaign aiming at generating reach, awareness, video views,…
+- [perf] - Campaign aiming at generating leads, conversions,…","brand, perf"
+MUST HAVE,MUST HAVE,campaign-name,string,Name assigned to identify and differentiate individual media campaigns ,"self-employed, women, recruitment, tax-campaign-2023"
+SHOULD HAVE,SHOULD HAVE,campaign-objective,dropdown-list,The primary goal or purpose the media campaign is designed to achieve,"conversion, awareness"
+MUST HAVE,MUST HAVE,business-classification-1,dropdown-list,"This item defines the communication territory of the campaign. For example, the campaign is about a health thematic. Please refer to the business classification tab","health, pc-personnal-lines, life-savings"
+MUST HAVE,MUST HAVE,business-classification-2,dropdown-list,"This item refines the way to define the communication territory of the campaign in a more granular way. For example, the campaign is about a health thematic and promotes a personnal-health topic. Please refer to the business classification tab.","personal-health, motor, property, lialability"
+SHOULD HAVE,SHOULD HAVE,product,string,"The specific product, line of product or service being advertised in the media campaign","auto, health, home, lifeready"
+MUST HAVE,MUST HAVE,media-level-1,dropdown-list,"(New) First level of media types defined in the harmonized ""media categorization"". For example the level 1 of this media categorization is TV and includes advertisements on traditional and addressable TV, as well as on connected TV sets that stream digital content, available nationally and locally.","tv, audio, print, paid-social"
+MUST HAVE,MUST HAVE,media-level-2,dropdown-list,"(New) Second level of media types defined in the harmonized ""media categorization"". For example, the level 1 of the ""media categorization is TV and the second level is broadcast-tv that includes the commercials aired during scheduled breaks in television programming.","broadcast-tv, magazine, cinema, dooh"
+SHOULD HAVE,SHOULD HAVE,mediapartner-saleshouse,string,"Organization responsible for selling media owners' inventory across various media platforms on behalf of media owners, helping advertisers reach their target audiences effectively","dv360, meta, jcdecaux"
+SHOULD HAVE,SHOULD HAVE,platform-or-publisher,string,The media owner or platform that publishes or broadcasts the campaign content to the target audience,"youtube, instagram, facebook, jcdecaux"
+NICE TO HAVE,NICE TO HAVE,buying-mode,dropdown-list,"The method or strategy used to purchase media space or time. Available options are:
+- [booked] - Direct buying  - purchasing ad space or media placements directly from a publisher (e.g., website, TV channel, radio station) without the use of automated platforms
+- [programmatic] - Programmatic Buying - Automated purchase of digital advertising through software and data-driven platforms (e.g., ad exchanges, DSPs)
+- [free] - not charged - Media offered for free by the publisher, without any additional charges","booked, programmatic"
+NICE TO HAVE,NICE TO HAVE,buying-type,dropdown-list,"Determine the cost model associated with running advertisements or media activities
+- [cpc] - Cost Per click - Advertisers are charged based on the cost incurred each time a user clicks on an advertisement
+- [cpa] - Cost Per Action - Performance-based buying type where advertisers pay when a specific action or conversion is completed
+- [cpv] - Cost Per View - Advertisers pay based on the number of views their video ad receives
+- [cpm] - Cost Per Thousand impressions - Advertisers pay based for one thousand views or impressions of an advertisement
+- [grp] - Cost per Gross Rating Point - Advertisers pay a fixed price for each GRP generated by the ad
+- [other] - other pricing combination - As an example, mix pricing with CPA + CPC","cpc, cpa, cpv, cpm, grp, other"
+SHOULD HAVE,SHOULD HAVE,start-date,string,"Start date of the campaign (except for Press campaigns). Format to be respected is DD/MM/YYYY - e.g., 10/10/2024",10/10/2024
+SHOULD HAVE,SHOULD HAVE,end-date,string,"End date of the campaign (except for Press campaigns). Format to be respected is DD/MM/YYYY - e.g., 10/10/2024",10/10/2024
+SHOULD HAVE,SHOULD HAVE,date,string,"Date of diffusion or publication (only date to use for Press campaigns). Format to be respected is DD/MM/YYYY - e.g., 10/10/2024",10/10/2024
+MUST HAVE,MUST HAVE,week,string,"Week number of the diffusion or publication of the ad. To be calculated in French standards (week starting on Monday), with the possibility to make a prorata when the publication period spans over two weeks (eg in FR, Cinema is bought from Wednesday to Tuesday and DOOH from Tuesday to Monday). Week 53 should be changed for week 1 in order to have weeks of equivalent size",45
+,NICE TO HAVE,targeting-type,dropdown-list,Specific method or strategy used to identify and reach a desired audience segment,"sociodemo, broad, specific, interest"
+,NICE TO HAVE,procurement-centralization,dropdown-list,"Financial consolidation related to the media investment
+Available options are :
+- [inter] - consolidation at International level
+- [national] - consolidation at national level
+- [pan] - consolidation at European level
+- [local] - consolidation at local level (when different from national level)
+- [regional] - consolidation at regional level","inter, national, pan, local, regional"
+,NICE TO HAVE,media-target,string,"A media target refers to the specific group of people that the media campaign or advertisement is designed to reach (e.g., demographic, behavioral characteristics). It's a strategically defined subset of the population","women-18-25, men-45-54"
+MUST HAVE,NICE TO HAVE,creative-type,dropdown-list,"Specific format or medium used to present and deliver creative content (e.g., video, image, text, etc.)
+- [video] Includes TV ads, online videos (YouTube, social media), DOOH videos, stories and reels (Instagram, TikTok, etc.), native videos (embedded within articles or platforms), interactive videos.
+- [audio] Includes radios ads, streaming ads (Spotify, Deezer, etc.), sponsored podcasts, pre-recorded messages for voice assistants.
+- [static-visual] Includes web banners (display), visuals for social media (Instagram posts, Facebook, etc.), visuals for press and magazines (print), native banners, Posters (OOH, DOOH - digital out-of-home).
+- [rich-media-creative] Includes interactive banners, animated content (GIFs, short animations), adver-games (mini-games for advertising).
+- [immersive-creative] Includes augmented reality (AR), Virtual reality (VR), 360° experiences (videos, photos...).
+- [native-content] Includes sponsored articles, branded content integration (e.g., within a content platform), Influencer-generated content for the brand
+- [text] Campaigns containing only text (for search only)
+- [performance-max] Performance Max campaignes on Google Ads / Bing (for search only)","video, audio, static-visual, rich-media-creative, native-content"
+NICE TO HAVE,NICE TO HAVE,creative-format,string,"The specific dimensions or space allocated for a media ad or content within its chosen platform or format type. It determines the physical or digital size of the advertisement (e.g., Leaderboard, Media Rectangle, Mobile banner)","quadri-page, leaderboard, 300x250"
+NICE TO HAVE,NICE TO HAVE,creative-label,string,The name assigned to a creative,"hero-on-all-front, lf-employed"
+NICE TO HAVE,NICE TO HAVE,creative-duration,string,"The length of time a creative asset, such as a video, runs (in seconds)","20s, 100s"
+,NICE TO HAVE,location,dropdown-list,"Location (only for DOOH) refers to the specific physical sites or environments where digital ads are displayed:
+- [metro-stations] - Advertising in metro stations, on platforms, in corridors, and inside trains
+- [train-stations] - Advertising in railway and bus stations, including platforms, waiting areas, and entrance halls
+- [shopping-malls] - both inside (digital or static signage) and outside (e.g., billboards in parking areas)
+- [streets] - billboards displayed in city streets
+- [classic-urban-advertising] - billboards, bus shelters, Morris columns, digital displays
+- [airports-terminals] - departure halls, and check-in areas, both indoors and outdoors
+- [highways-and-ring-roads] - Large-format billboards along highways and major roads
+- [stadiums-and-event-venues] - Advertising in stadiums, arenas, and other locations hosting sports or cultural events
+- [other] - Other possible location for DOOH campaign","metro-stations, train-stations, shopping-malls, classic-urban-advertising, airports-terminals, highways-and-ring-roads, stadium-and-event-venues, other"
+,SHOULD HAVE,positioning,string,The location or context where (or when) the ad is displayed,"1,2,3,4"
+,SHOULD HAVE,daypart,string,"A division of the day used in media planning - notably TV and radio - to strategically place ads to reach the most relevant audiences.
+The format must be HHMM(am or pm)-HHMM(am or pm)","0430pm-0630pm, 0800pm-1000pm"
+,NICE TO HAVE,digital-radio-or-podcast,dropdown-list,Distribution and consumption of audio content encompassing both digital radio broadcast over digital platforms and streaming or download of on-demand podcasts,"podcast, digital-radio"
+,NICE TO HAVE,periodicity,string,"Frequency and schedule with which a publication is released within the specific print medium (e.g., newspapers, magazines, etc.). Common periodicity include : daily, weekly, biweekly, monthly, quarterly","daily, weekly, monthly, biweekly"
+,NICE TO HAVE,press-type,dropdown-list,"Specific category of format of printed media that is used to disseminate news, information, advertisements, and other content (e.g., brochures, flyers, etc.)","- general-interest
+- business/financial
+- women
+- sports
+'- special-interest(e.g.arts, technology,fooding)
+- business-to-business(b2b)
+- scholarly-academic
+- other"
+,NICE TO HAVE,magazine-or-newspaper,dropdown-list,Specific category or format of printed media - Available options are : newspaper or magazine,"magazine, newspaper"
+SHOULD HAVE,,national-or-local,dropdown-list,Used to state if the campaign is a local or national one,"local, national"
+SHOULD HAVE,,campaign-platform,string,"Name of the DSP (eg. Meta, Google Ads,…) campaign. This does not need to be filled for Appnexus",gsn_pmax_carinsurance_fr_gbc_1024_selfemployed_wave1_1124_axa-fr_non-brand
+NICE TO HAVE,,adgroup-name,string,"Name of the SEM (eg. Bing, Google Ads,…) ad group","generic-broad_citroen_offensive_test, brand-exact_axa_deffensive"
+MUST HAVE,,brand-non-brand,dropdown-list,"SEM only - Used to state if a text campaign is targetting AXA brand keywords or not. For SEM campaign which are not text (eg. Performance max), please leave the field empty","brand, non-brand"
+NICE TO HAVE,,line-item,string,"Name of the DSP (eg. DV360, Appnexus,…) line item","retargeting_first-party_mobile_tcpa_visitors_test, prospecting_google-audience_desktop_cpcv_students"
+NICE TO HAVE,,insertion-order,string,"Name of the DSP (eg. DV360, Appnexus,…) insertion order","leads_performance_cpa_display_paris_fr_v2, awareness_brand_reach_video"
+NICE TO HAVE,,adset-name,string,"Name of the DSP (eg. Meta, Snapchat,…) ad set","facebook_stories_cpv_lookalike_men_18-35_young-drivers_custom, instagram_reels_cpc_meta-audience_women_all_employed"
+NICE TO HAVE,NICE TO HAVE,ad-serving,dropdown-list,"States if the campaign is adserved in CM (or other adserver tool such Adform, Weborama,...)","yes, no"
+SHOULD HAVE,SHOULD HAVE,ad-verification,dropdown-list,States if the campaign is measured by IAS,"yes, no"
+,MUST HAVE,grp,long,"Gross Rating Points - grp - measures the reach and frequency of an advertising campaign: how many people within a target audience are exposed to an advertisement, and how often, over a specific period (i.e., basic formula for GRP = Reach on target × Frequency)",67
+,NICE TO HAVE,trp,long,Television Rating Points - trp - measures the reach frequency of an ad within a specific target audience,67
+,NICE TO HAVE,contacts,long,Total number of contacts reached by the campaign,1306036
+,NICE TO HAVE,circulation,long,"Distribution and reach of print media, indicating how many copies of a publication are printed and distributed in a specific timeframe",106227
+MUST HAVE,MUST HAVE,impressions,long,"Total number of times an ad or piece of content is displayed to users (regardless of whether it was clicked or not, and was visible or not)",43025
+SHOULD HAVE,SHOULD HAVE,video-or-audio-plays,long,Total number of times a video / an audio is played,55477
+SHOULD HAVE,SHOULD HAVE,video-or-audio-completed,long,Total number of times a video / an audio is 100% completed ,4478
+MUST HAVE,MUST HAVE,clicks,long,Total number of clicks made on the ad,167
+MUST HAVE,MUST HAVE,net-media-costs,long,"Agreed price for media purchases after all negotiated, trade discounts have been applied and after the deduction of the standard agency fee, but excluding the Contractor Buying Fee/Commission, industry levies (ASBOF/BASBOF) and VAT",17043
+,MUST HAVE,technical-costs,long,"The expenses associated with all production and technical costs (including Copilot, Xplain, Scope3, Lumen, Greenbids, BIEM fees in radio, etc.)",32
+MUST HAVE,MUST HAVE,dsp-fees,long,The cost associated with using a Demand-Side Platform (eg. DV360) - DSP - for ad purchasing,32
+MUST HAVE,MUST HAVE,data-fees,long,Charges incurred for accessing or using data (for example 3rd party data used for programmatic),0

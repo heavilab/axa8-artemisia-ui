@@ -14,12 +14,13 @@ initializeApp({
 const db = getFirestore();
 
 // Define collection-specific behavior
-const seedConfigs: Record<string, { enrich?: boolean }> = {
-  countries: {}, // regular load
-  users: {}, // regular load
+const collections: Record<string, { enrich?: boolean }> = {
+  users: {},
+  countries: {},
   businessRules: { enrich: true }, // requires enrichment
   nodeMappings: {}, // regular load
   currencyExchangeRates: {}, // regular load
+  dataGlossary: {}, // regular load
 };
 
 async function clearCollection(collectionName: string) {
@@ -80,9 +81,17 @@ async function importFromCSV(
           } else if (collectionName === "currencyExchangeRates") {
             enriched = {
               ...entry,
-              value: parseFloat(entry.value) || 0, // Convert value to number
-              createdAt: Timestamp.now(),
-              updatedAt: Timestamp.now(),
+              userId: "romain@heaviside.fr",
+              createdAt: new Date(),
+              publishedAt: new Date(),
+              createdBy: "romain@heaviside.fr",
+            };
+          } else if (collectionName === "dataGlossary") {
+            enriched = {
+              ...entry,
+              userId: "romain@heaviside.fr",
+              createdAt: new Date(),
+              publishedAt: new Date(),
               createdBy: "romain@heaviside.fr",
             };
           }
@@ -101,12 +110,12 @@ async function importFromCSV(
 async function seed() {
   console.log("🌱 Seeding Firestore...");
 
-  const collectionNames = Object.keys(seedConfigs);
+  const collectionNames = Object.keys(collections);
 
   await Promise.all(collectionNames.map(clearCollection));
 
   for (const collectionName of collectionNames) {
-    const { enrich } = seedConfigs[collectionName];
+    const { enrich } = collections[collectionName];
     await importFromCSV(collectionName, enrich);
   }
 

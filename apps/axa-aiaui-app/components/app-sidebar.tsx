@@ -95,6 +95,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/dashboard/currency-exchange-rates",
           isActive: pathname === "/dashboard/currency-exchange-rates",
         },
+        {
+          title: "Data Glossary",
+          url: "/dashboard/data-glossary",
+          isActive: pathname === "/dashboard/data-glossary",
+        },
       ],
     },
     {

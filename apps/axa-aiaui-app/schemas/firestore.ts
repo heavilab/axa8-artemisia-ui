@@ -84,3 +84,18 @@ export const nodeMappingsSchema = z.object({
 });
 
 export type NodeMappings = z.infer<typeof nodeMappingsSchema>;
+
+// Data Glossary Schema
+export const dataGlossarySchema = z.object({
+  priorityOnline: z.string(),
+  priorityOffline: z.string(),
+  dataFieldName: z.string(),
+  outputType: z.string(),
+  description: z.string(),
+  example: z.string(),
+  userId: z.string().optional(),
+  createdAt: z.any().optional(),
+  publishedAt: z.any().optional(),
+});
+
+export type DataGlossary = z.infer<typeof dataGlossarySchema>;
