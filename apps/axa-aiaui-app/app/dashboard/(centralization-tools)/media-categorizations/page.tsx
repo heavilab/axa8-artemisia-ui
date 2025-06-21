@@ -140,16 +140,6 @@ export default function MediaCategorizationsPage() {
   const parents = data.filter((item) => item.parentName === "/");
   const children = data.filter((item) => item.parentName !== "/");
 
-  // Group children by their parent
-  const childrenByParent = children.reduce((acc, child) => {
-    const parent = child.parentName;
-    if (!acc[parent]) {
-      acc[parent] = [];
-    }
-    acc[parent].push(child);
-    return acc;
-  }, {} as Record<string, (MediaCategorizations & { id: string })[]>);
-
   const toggleParent = (parentName: string) => {
     const newExpanded = new Set(expandedParents);
     if (newExpanded.has(parentName)) {

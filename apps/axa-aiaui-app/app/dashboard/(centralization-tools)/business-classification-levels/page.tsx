@@ -14,7 +14,6 @@ import { db } from "@/lib/firebase";
 import { BusinessClassificationLevels } from "@/schemas/firestore";
 import { exportToCSV } from "@/lib/utils/csv";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Collapsible,
