@@ -17,6 +17,7 @@ import { Search } from "@/components/ui/search";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogTrigger,
@@ -41,6 +42,7 @@ const REQUIRED_COLUMNS = [
 export default function DataGlossaryPage() {
   const [data, setData] = useState<(DataGlossary & { id: string })[]>([]);
   const [search, setSearch] = useState("");
+  const [showMustHaveOnly, setShowMustHaveOnly] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [sanityResult, setSanityResult] = useState<null | {
@@ -164,6 +166,10 @@ export default function DataGlossaryPage() {
             row.description.toLowerCase().includes(search.toLowerCase())
         );
 
+  const finalData = showMustHaveOnly
+    ? filteredData.filter((item) => item.priorityOnline === "MUST HAVE")
+    : filteredData;
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -227,6 +233,15 @@ export default function DataGlossaryPage() {
             onChange={setSearch}
           />
         </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={showMustHaveOnly ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowMustHaveOnly(!showMustHaveOnly)}
+          >
+            {showMustHaveOnly ? "✓" : "○"} MUST HAVE Only
+          </Button>
+        </div>
         <Button
           variant="outline"
           onClick={() => {
@@ -244,7 +259,7 @@ export default function DataGlossaryPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {filteredData.map((item) => (
+        {finalData.map((item) => (
           <Card key={item.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -308,7 +323,7 @@ export default function DataGlossaryPage() {
         ))}
       </div>
 
-      {filteredData.length === 0 && (
+      {finalData.length === 0 && (
         <div className="text-center py-12">
           <p className="text-muted-foreground">
             No data fields found matching your search.
