@@ -6,6 +6,8 @@ import { BusinessRulesTable } from "./business-rules-table";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Filter } from "lucide-react";
+import { Download } from "lucide-react";
+import { Upload } from "lucide-react";
 import { NewRuleDialog } from "./new-rule-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -353,6 +355,7 @@ export function BusinessRulesTabs({
                   variant="outline"
                   size="sm"
                   className="h-8"
+                  title="Download CSV"
                   onClick={() => {
                     const exportData = rows.map(
                       (row: Record<string, unknown>) => {
@@ -364,7 +367,8 @@ export function BusinessRulesTabs({
                     exportToCSV(exportData, `business_rules_${setId}`);
                   }}
                 >
-                  Download CSV
+                  <Download className="w-4 h-4 mr-1" />
+                  Download
                 </Button>
               </div>
               <div className="flex gap-2 ">
@@ -525,6 +529,7 @@ function PublishDraftDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm" className="h-8">
+          <Upload className="w-4 h-4 mr-1" />
           Publish
         </Button>
       </DialogTrigger>
