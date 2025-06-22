@@ -149,6 +149,7 @@ export const mdcTemplatesSchema = z.object({
   uploadedAt: z.instanceof(Timestamp),
   storagePath: z.string().optional(),
   downloadURL: z.string().optional(),
+  templateCategory: z.string().optional(),
 });
 
 export type MDCTemplates = z.infer<typeof mdcTemplatesSchema>;

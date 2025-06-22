@@ -118,7 +118,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ],
     },
     {
-      title: "Media Data Collection",
+      title: "API Data Collection",
       url: "#",
       icon: DatabaseZap,
       items: [
@@ -126,16 +126,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Business Rules",
           url: "/dashboard/business-rules",
           isActive: pathname === "/dashboard/business-rules",
-          badge: "API",
         },
         {
           title: "Node Mappings",
           url: "/dashboard/node-mappings",
           isActive: pathname === "/dashboard/node-mappings",
-          badge: "API",
         },
+      ],
+    },
+    {
+      title: "Non-API Data Collection",
+      url: "#",
+      icon: DatabaseZap,
+      items: [
         {
-          title: "MDC Template",
+          title: "Templates",
           url: "/dashboard/mdc-template",
           isActive: pathname === "/dashboard/mdc-template",
         },

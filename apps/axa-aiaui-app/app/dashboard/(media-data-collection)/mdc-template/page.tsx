@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   collection,
   getDocs,
@@ -35,22 +35,89 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Download, Trash2, Upload } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Download, Trash2, Upload, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@/lib/hooks/use-user";
 import { MDCTemplates } from "@/schemas/firestore";
 
+// Extended type for MDCTemplates with templateCategory
+type ExtendedMDCTemplates = MDCTemplates & {
+  id: string;
+  templateCategory?: TemplateCategory;
+};
+
+// Template categories
+const TEMPLATE_CATEGORIES = [
+  "Digital direct display",
+  "Digital direct video",
+  "Digital programmatic",
+  "Paid search",
+  "Paid social",
+  "Print media",
+  "Radio",
+  "DOOH",
+  "OOH",
+] as const;
+
+type TemplateCategory = (typeof TEMPLATE_CATEGORIES)[number];
+
+// Color mapping for badges
+const getCategoryColor = (category: TemplateCategory) => {
+  const colors: Record<TemplateCategory, string> = {
+    "Digital direct display": "bg-blue-100 text-blue-800",
+    "Digital direct video": "bg-purple-100 text-purple-800",
+    "Digital programmatic": "bg-indigo-100 text-indigo-800",
+    "Paid search": "bg-green-100 text-green-800",
+    "Paid social": "bg-pink-100 text-pink-800",
+    "Print media": "bg-orange-100 text-orange-800",
+    Radio: "bg-yellow-100 text-yellow-800",
+    DOOH: "bg-teal-100 text-teal-800",
+    OOH: "bg-red-100 text-red-800",
+  };
+  return colors[category];
+};
+
+// Template download URLs (you can update these with actual template URLs)
+const TEMPLATE_DOWNLOADS: Record<TemplateCategory, string> = {
+  "Digital direct display":
+    "/documents/mdc-template-digital-direct-display.xlsx",
+  "Digital direct video": "/documents/mdc-template-digital-direct-video.xlsx",
+  "Digital programmatic": "/documents/mdc-template-digital-programmatic.xlsx",
+  "Paid search": "/documents/mdc-template-paid-search.xlsx",
+  "Paid social": "/documents/mdc-template-paid-social.xlsx",
+  "Print media": "/documents/mdc-template-print-media.xlsx",
+  Radio: "/documents/mdc-template-radio.xlsx",
+  DOOH: "/documents/mdc-template-dooh.xlsx",
+  OOH: "/documents/mdc-template-ooh.xlsx",
+};
+
 export default function MDCTemplatePage() {
-  const [data, setData] = useState<(MDCTemplates & { id: string })[]>([]);
+  const [data, setData] = useState<ExtendedMDCTemplates[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [templateToDelete, setTemplateToDelete] = useState<
-    (MDCTemplates & { id: string }) | null
-  >(null);
+  const [templateToDelete, setTemplateToDelete] =
+    useState<ExtendedMDCTemplates | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<
+    TemplateCategory | ""
+  >("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { user, loading: userLoading } = useUser();
   const [profile, setProfile] = useState<{ role: string } | null>(null);
@@ -62,6 +129,11 @@ export default function MDCTemplatePage() {
   const handleFileUpload = async () => {
     if (!selectedFile) {
       toast.error("Please select a file first");
+      return;
+    }
+
+    if (!selectedCategory) {
+      toast.error("Please select a template category");
       return;
     }
 
@@ -79,9 +151,9 @@ export default function MDCTemplatePage() {
       setUploading(true);
       setUploadProgress(0);
 
-      // Create a unique filename with timestamp
+      // Create a unique filename with timestamp and category
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const fileName = `mdc-templates/${timestamp}_${selectedFile.name}`;
+      const fileName = `mdc-templates/${selectedCategory}/${timestamp}_${selectedFile.name}`;
 
       // Create a reference to the file location in GCS
       const storageRef = ref(storage, fileName);
@@ -117,11 +189,13 @@ export default function MDCTemplatePage() {
               uploadedAt: new Date(),
               storagePath: fileName,
               downloadURL: downloadURL,
+              templateCategory: selectedCategory,
             });
 
             toast.success("Template uploaded successfully!");
             setDialogOpen(false);
             setSelectedFile(null);
+            setSelectedCategory("");
             setUploadProgress(0);
 
             // Refresh the data to show the new upload
@@ -170,7 +244,7 @@ export default function MDCTemplatePage() {
     }
   };
 
-  const handleDownload = (item: MDCTemplates & { id: string }) => {
+  const handleDownload = (item: ExtendedMDCTemplates) => {
     if (item.downloadURL) {
       const link = document.createElement("a");
       link.href = item.downloadURL;
@@ -183,12 +257,43 @@ export default function MDCTemplatePage() {
     }
   };
 
-  const openDeleteDialog = (item: MDCTemplates & { id: string }) => {
+  const handleTemplateDownload = (category: TemplateCategory) => {
+    const downloadUrl = TEMPLATE_DOWNLOADS[category];
+    if (downloadUrl) {
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `mdc-template-${category
+        .toLowerCase()
+        .replace(/\s+/g, "-")}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`Downloading ${category} template`);
+    } else {
+      toast.error("Template not available for download");
+    }
+  };
+
+  const openDeleteDialog = (item: ExtendedMDCTemplates) => {
     setTemplateToDelete(item);
     setDeleteDialogOpen(true);
   };
 
-  const fetchData = async () => {
+  const fetchProfile = useCallback(async () => {
+    if (user?.email) {
+      const q = query(
+        collection(db, "users"),
+        where("email", "==", user.email)
+      );
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        setProfile(snapshot.docs[0].data() as { role: string });
+      }
+    }
+    setProfileLoading(false);
+  }, [user?.email]);
+
+  const fetchData = useCallback(async () => {
     if (!user?.email) {
       console.log("No user email available");
       return;
@@ -198,79 +303,36 @@ export default function MDCTemplatePage() {
     setLoading(true);
     try {
       // First, let's see if there are any documents at all in the collection
-      const allDocsQuery = query(collection(db, "mdcTemplates"));
-      const allDocsSnapshot = await getDocs(allDocsQuery);
-      console.log("Total documents in mdcTemplates:", allDocsSnapshot.size);
-
-      if (allDocsSnapshot.size > 0) {
-        console.log("All documents data:");
-        allDocsSnapshot.docs.forEach((doc, index) => {
-          console.log(`Document ${index}:`, doc.data());
-        });
-      }
-
-      // Try the filtered query without orderBy first
-      const q = query(
-        collection(db, "mdcTemplates"),
-        where("uploadedBy", "==", user.email)
-      );
+      const q = query(collection(db, "mdcTemplates"));
       const querySnapshot = await getDocs(q);
-      console.log("Documents for current user:", querySnapshot.size);
-
-      if (querySnapshot.size > 0) {
-        console.log("User documents data:");
-        querySnapshot.docs.forEach((doc, index) => {
-          console.log(`User document ${index}:`, doc.data());
-        });
-      }
+      console.log("Total documents in collection:", querySnapshot.size);
 
       const mapped = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as (MDCTemplates & { id: string })[];
+      })) as ExtendedMDCTemplates[];
 
       console.log("Mapped data:", mapped);
       setData(mapped);
     } catch (error) {
-      console.error("Error fetching MDC templates:", error);
-      setData([]);
+      console.error("Error fetching data:", error);
+      toast.error("Failed to load templates");
     } finally {
       setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user?.email) {
-      fetchData();
     }
   }, [user?.email]);
 
   useEffect(() => {
-    async function fetchProfile() {
-      if (user?.email) {
-        console.log("Fetching profile for user:", user.email);
-        const q = query(
-          collection(db, "users"),
-          where("email", "==", user.email)
-        );
-        const snapshot = await getDocs(q);
-        console.log("User profile query result:", snapshot.size, "documents");
-        if (!snapshot.empty) {
-          const profileData = snapshot.docs[0].data() as { role: string };
-          console.log("User profile data:", profileData);
-          setProfile(profileData);
-        } else {
-          console.log("No user profile found");
-        }
-      } else {
-        console.log("No user email available for profile fetch");
-      }
-      setProfileLoading(false);
-    }
     if (!userLoading) {
       fetchProfile();
     }
-  }, [user, userLoading]);
+  }, [userLoading, fetchProfile]);
+
+  useEffect(() => {
+    if (!userLoading && !profileLoading) {
+      fetchData();
+    }
+  }, [userLoading, profileLoading, fetchData]);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
@@ -281,19 +343,19 @@ export default function MDCTemplatePage() {
   };
 
   const formatDate = (date: unknown) => {
-    if (!date) return "Unknown";
-    const d =
-      date && typeof date === "object" && "toDate" in date
-        ? (date as { toDate: () => Date }).toDate()
-        : new Date(date as string | number);
-    return d.toLocaleDateString() + " " + d.toLocaleTimeString();
+    if (!date) return "N/A";
+    try {
+      return new Date(date as string).toLocaleDateString();
+    } catch {
+      return "Invalid date";
+    }
   };
 
   if (loading || userLoading || profileLoading) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading MDC templates...</div>
+          <div className="text-muted-foreground">Loading templates...</div>
         </div>
       </div>
     );
@@ -304,85 +366,100 @@ export default function MDCTemplatePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">
-            Media Data Collection Template
+            Media Data Collection Templates
           </h1>
           <p className="text-muted-foreground mt-2">
-            Media Data Collection templates and configurations
+            Media Data Collection templates and uploads
           </p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="cursor-pointer"
-            onClick={() => {
-              // Download the Excel template file
-              const link = document.createElement("a");
-              link.href =
-                "/media-data-collection-template_master template_VF_211124_2.xlsx";
-              link.download =
-                "media-data-collection-template_master template_VF_211124_2.xlsx";
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-            }}
-          >
-            <Download className="w-4 h-4" />
-            Download
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Download className="w-4 h-4 mr-1" />
+                Download
+                <ChevronDown className="w-4 h-4 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {TEMPLATE_CATEGORIES.map((category) => (
+                <DropdownMenuItem
+                  key={category}
+                  onClick={() => handleTemplateDownload(category)}
+                >
+                  {category}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {canUploadOrDelete && (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="default" className="cursor-pointer">
-                  <Upload className="w-4 h-4" />
+                <Button variant="default">
+                  <Upload className="w-4 h-4 mr-2" />
                   Upload
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Upload Filled Template</DialogTitle>
+                  <DialogTitle>Upload MDC Template</DialogTitle>
                   <DialogDescription>
-                    Upload your completed Media Data Collection template file.
+                    Upload a completed MDC template file.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="py-4">
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls"
-                    ref={fileInputRef}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setSelectedFile(file);
-                        console.log("File selected:", file.name);
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <label htmlFor="category">Template Category</label>
+                    <Select
+                      value={selectedCategory}
+                      onValueChange={(value) =>
+                        setSelectedCategory(value as TemplateCategory)
                       }
-                    }}
-                    className="w-full"
-                  />
-                  {selectedFile && (
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      Selected: {selectedFile.name} (
-                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
-                    </div>
-                  )}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select template category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TEMPLATE_CATEGORIES.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <label htmlFor="file">Template File</label>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".xlsx,.xls"
+                      onChange={(e) =>
+                        setSelectedFile(e.target.files?.[0] || null)
+                      }
+                      className="border border-gray-300 rounded-md p-2"
+                    />
+                  </div>
                   {uploading && (
-                    <div className="mt-4">
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                          style={{ width: `${uploadProgress}%` }}
-                        ></div>
-                      </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        Uploading... {uploadProgress.toFixed(1)}%
-                      </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-blue-600 h-2.5 rounded-full"
+                        style={{ width: `${uploadProgress}%` }}
+                      ></div>
                     </div>
                   )}
                 </div>
                 <DialogFooter>
                   <Button
+                    variant="outline"
+                    onClick={() => setDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
                     onClick={handleFileUpload}
-                    disabled={uploading || !selectedFile}
-                    className="cursor-pointer"
+                    disabled={uploading || !selectedFile || !selectedCategory}
                   >
                     {uploading ? "Uploading..." : "Upload"}
                   </Button>
@@ -393,21 +470,23 @@ export default function MDCTemplatePage() {
         </div>
       </div>
 
-      <div className="border rounded-lg">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>ID</TableHead>
               <TableHead>Filename</TableHead>
-              <TableHead>File Size</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Size</TableHead>
+              <TableHead>Uploaded By</TableHead>
               <TableHead>Upload Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
                   <p className="text-muted-foreground">
                     No templates uploaded yet.
                   </p>
@@ -417,17 +496,27 @@ export default function MDCTemplatePage() {
               data.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-mono text-sm">
-                    {item.id.substring(0, 5)}
+                    {item.id.slice(0, 5)}
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {item.fileName || "Unknown"}
+                  <TableCell>{item.fileName}</TableCell>
+                  <TableCell>
+                    {item.templateCategory ? (
+                      <Badge
+                        className={getCategoryColor(item.templateCategory)}
+                      >
+                        {item.templateCategory}
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary">Unknown</Badge>
+                    )}
                   </TableCell>
-                  <TableCell>{formatFileSize(item.fileSize || 0)}</TableCell>
+                  <TableCell>{formatFileSize(item.fileSize)}</TableCell>
+                  <TableCell>{item.uploadedBy}</TableCell>
                   <TableCell>{formatDate(item.uploadedAt)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
+                  <TableCell>
+                    <div className="flex gap-2">
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => handleDownload(item)}
                         className="h-8 w-8 p-0"
@@ -436,7 +525,7 @@ export default function MDCTemplatePage() {
                       </Button>
                       {canUploadOrDelete && (
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           onClick={() => openDeleteDialog(item)}
                           className="h-8 w-8 p-0 text-destructive hover:text-destructive"
@@ -459,7 +548,7 @@ export default function MDCTemplatePage() {
           <DialogHeader>
             <DialogTitle>Delete Template</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the template{" "}
+              Are you sure you want to delete{" "}
               <strong>{templateToDelete?.fileName}</strong>? This action cannot
               be undone.
             </DialogDescription>
@@ -467,10 +556,7 @@ export default function MDCTemplatePage() {
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => {
-                setDeleteDialogOpen(false);
-                setTemplateToDelete(null);
-              }}
+              onClick={() => setDeleteDialogOpen(false)}
             >
               Cancel
             </Button>
