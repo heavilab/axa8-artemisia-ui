@@ -369,7 +369,8 @@ export default function MDCTemplatePage() {
             Media Data Collection Templates
           </h1>
           <p className="text-muted-foreground mt-2">
-            Media Data Collection templates and uploads
+            This page enables the uploading of filled media data collection
+            templates.
           </p>
         </div>
         <div className="flex gap-2">

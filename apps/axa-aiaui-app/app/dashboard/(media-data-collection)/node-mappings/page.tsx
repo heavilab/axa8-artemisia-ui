@@ -91,7 +91,13 @@ export default function NodeMappingsPage() {
   return (
     <div className="p-6 space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Node Mappings</h1>
+        <div>
+          <h1 className="text-2xl font-semibold">Node Mappings</h1>
+          <p className="text-muted-foreground mt-2">
+            This page enables completing fields manually for various mapping
+            levels.
+          </p>
+        </div>
         {profile?.role !== "Readonly" && (
           <CreateDraftDialog onRefresh={fetchNodeMappings} />
         )}

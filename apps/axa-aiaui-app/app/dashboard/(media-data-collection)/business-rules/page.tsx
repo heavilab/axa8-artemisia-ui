@@ -162,7 +162,14 @@ export default function SourceFieldMappingsPage() {
   return (
     <div className="p-6 space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Business Rules</h1>
+        <div>
+          <h1 className="text-2xl font-semibold">Business Rules</h1>
+          <p className="text-muted-foreground mt-2">
+            This page enables the creation of business rules, which will
+            complete certain fields based on the value extracted from existing
+            fields.
+          </p>
+        </div>
         {profile?.role !== "Readonly" && (
           <CreateDraftDialog
             onCreate={handleCreateDraft}
