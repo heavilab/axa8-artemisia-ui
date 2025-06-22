@@ -75,7 +75,7 @@ export default function CentralizationToolsPage() {
         {tools.map((tool) => {
           const IconComponent = tool.icon;
           return (
-            <Card key={tool.title} className="transition-shadow">
+            <Card key={tool.title} className="transition-shadow flex flex-col">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-primary text-primary-foreground">
@@ -86,16 +86,18 @@ export default function CentralizationToolsPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 flex-1 flex flex-col">
                 <CardDescription className="text-sm leading-relaxed">
                   {tool.description}
                 </CardDescription>
-                <Link href={tool.href}>
-                  <Button variant="outline" className="w-full cursor-pointer">
-                    <span>Open Tool</span>
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                <div className="mt-auto">
+                  <Link href={tool.href}>
+                    <Button variant="outline" className="w-full cursor-pointer">
+                      <span>Open Tool</span>
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           );
