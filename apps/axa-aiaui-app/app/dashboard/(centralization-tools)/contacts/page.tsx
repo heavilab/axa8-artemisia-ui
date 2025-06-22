@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   collection,
   getDocs,
@@ -11,6 +11,9 @@ import {
   orderBy,
   query,
   where,
+  limit,
+  startAfter,
+  QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Contact } from "@/schemas/firestore";
@@ -32,9 +35,36 @@ import { Search, Plus, Edit, Trash2, Mail, Phone } from "lucide-react";
 import { useUser } from "@/lib/hooks/use-user";
 import { toast } from "sonner";
 
+// Custom hook for infinite scrolling
+const useInView = (options = {}) => {
+  const [isInView, setIsInView] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsInView(entry.isIntersecting);
+    }, options);
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, [options]);
+
+  return [ref, isInView] as const;
+};
+
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<(Contact & { id: string })[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot | null>(null);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -55,16 +85,25 @@ export default function ContactsPage() {
 
   const isAdmin = profile?.role === "Admin";
 
+  // Infinite scroll setup
+  const [loadMoreRef, loadMoreInView] = useInView({
+    threshold: 0.1,
+    rootMargin: "100px",
+  });
+
   const fetchContacts = useCallback(async () => {
     try {
       setLoading(true);
-      const q = query(collection(db, "contacts"), orderBy("name"));
+      const q = query(collection(db, "contacts"), orderBy("name"), limit(12));
       const querySnapshot = await getDocs(q);
       const mapped = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as (Contact & { id: string })[];
+
       setContacts(mapped);
+      setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1] || null);
+      setHasMore(querySnapshot.docs.length === 12);
     } catch (error) {
       console.error("Error fetching contacts:", error);
       toast.error("Failed to load contacts");
@@ -72,6 +111,34 @@ export default function ContactsPage() {
       setLoading(false);
     }
   }, []);
+
+  const loadMoreContacts = useCallback(async () => {
+    if (!hasMore || loadingMore || !lastDoc) return;
+
+    try {
+      setLoadingMore(true);
+      const q = query(
+        collection(db, "contacts"),
+        orderBy("name"),
+        startAfter(lastDoc),
+        limit(12)
+      );
+      const querySnapshot = await getDocs(q);
+      const newContacts = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as (Contact & { id: string })[];
+
+      setContacts((prev) => [...prev, ...newContacts]);
+      setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1] || null);
+      setHasMore(querySnapshot.docs.length === 12);
+    } catch (error) {
+      console.error("Error loading more contacts:", error);
+      toast.error("Failed to load more contacts");
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [hasMore, loadingMore, lastDoc]);
 
   const fetchProfile = useCallback(async () => {
     if (user?.email) {
@@ -96,6 +163,13 @@ export default function ContactsPage() {
       fetchProfile();
     }
   }, [userLoading, fetchProfile]);
+
+  // Trigger load more when intersection observer fires
+  useEffect(() => {
+    if (loadMoreInView && hasMore && !loadingMore) {
+      loadMoreContacts();
+    }
+  }, [loadMoreInView, hasMore, loadingMore, loadMoreContacts]);
 
   const handleAddContact = async () => {
     if (
@@ -402,7 +476,20 @@ export default function ContactsPage() {
         ))}
       </div>
 
-      {filteredContacts.length === 0 && (
+      {/* Load More Element */}
+      {hasMore && (
+        <div ref={loadMoreRef} className="flex justify-center py-8">
+          {loadingMore ? (
+            <div className="text-muted-foreground">
+              Loading more contacts...
+            </div>
+          ) : (
+            <div className="text-muted-foreground">Scroll to load more</div>
+          )}
+        </div>
+      )}
+
+      {filteredContacts.length === 0 && !loading && (
         <div className="text-center py-12">
           <p className="text-muted-foreground">
             {search
