@@ -23,6 +23,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectTrigger,
@@ -30,7 +32,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Search, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { db } from "@/lib/firebase";
 import {
@@ -44,6 +46,8 @@ import { useUser } from "@/lib/hooks/use-user";
 
 type User = {
   email: string;
+  firstName?: string;
+  lastName?: string;
   agency: string;
   country: string;
   brand: string;
@@ -60,6 +64,13 @@ export default function AccountPage() {
   const [pendingRole, setPendingRole] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    country: "",
+    entity: "",
+    agency: "",
+  });
+  const [showFilters, setShowFilters] = useState(false);
   const { user: currentUser } = useUser();
 
   useEffect(() => {
@@ -141,35 +152,196 @@ export default function AccountPage() {
     toast("User deleted successfully");
   };
 
+  // Function to get display name
+  const getDisplayName = (user: User) => {
+    if (user.firstName && user.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    return user.email.split("@")[0];
+  };
+
+  // Function to get badge variant for role
+  const getRoleBadgeVariant = (role: User["role"]) => {
+    switch (role) {
+      case "Admin":
+        return "default";
+      case "Standard":
+        return "outline";
+      case "Viewer":
+        return "outline";
+      default:
+        return "outline";
+    }
+  };
+
+  // Function to extract initials from email
+  const getInitials = (user: User) => {
+    if (user.firstName && user.lastName) {
+      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    }
+    const parts = user.email.split("@")[0].split(".");
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return user.email.substring(0, 2).toUpperCase();
+  };
+
+  // Filter users based on search query and filters
+  const filteredUsers = users.filter((user) => {
+    const query = searchQuery.toLowerCase();
+    const matchesSearch =
+      user.email.toLowerCase().includes(query) ||
+      (user.firstName && user.firstName.toLowerCase().includes(query)) ||
+      (user.lastName && user.lastName.toLowerCase().includes(query)) ||
+      user.agency.toLowerCase().includes(query) ||
+      user.country.toLowerCase().includes(query) ||
+      user.entity.toLowerCase().includes(query) ||
+      user.brand.toLowerCase().includes(query) ||
+      user.role.toLowerCase().includes(query);
+
+    const matchesFilters =
+      (!filters.country || user.country === filters.country) &&
+      (!filters.entity || user.entity === filters.entity) &&
+      (!filters.agency || user.agency === filters.agency);
+
+    return matchesSearch && matchesFilters;
+  });
+
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">Admin Settings</h1>
+
+      {/* Search Bar */}
+      <div className="flex items-center gap-4 mb-6">
+        <div className="relative w-80">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search users by name, email, agency, country, entity, brand, or role..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center gap-2"
+        >
+          <Filter className="h-4 w-4" />
+          Filters
+        </Button>
+      </div>
+
+      {/* Filters Panel */}
+      {showFilters && (
+        <div className="mb-6 p-4 border rounded-lg bg-muted/50">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Country</label>
+              <Select
+                value={filters.country}
+                onValueChange={(value) =>
+                  setFilters({ ...filters, country: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All countries" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All countries</SelectItem>
+                  <SelectItem value="FR">FR</SelectItem>
+                  <SelectItem value="ES">ES</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Entity</label>
+              <Select
+                value={filters.entity}
+                onValueChange={(value) =>
+                  setFilters({ ...filters, entity: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All entities" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All entities</SelectItem>
+                  <SelectItem value="AXA">AXA</SelectItem>
+                  <SelectItem value="AXA XL">AXA XL</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Agency</label>
+              <Select
+                value={filters.agency}
+                onValueChange={(value) =>
+                  setFilters({ ...filters, agency: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All agencies" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All agencies</SelectItem>
+                  <SelectItem value="OMD">OMD</SelectItem>
+                  <SelectItem value="Havas">Havas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Table>
         <TableHeader>
           <TableRow>
-            <TableCell>Email</TableCell>
-            <TableCell>Agency</TableCell>
+            <TableCell>User</TableCell>
             <TableCell>Country</TableCell>
             <TableCell>Entity</TableCell>
+            <TableCell>Agency</TableCell>
             <TableCell>Brand</TableCell>
             <TableCell>Role</TableCell>
             <TableCell />
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.email}>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{user.agency}</TableCell>
+          {filteredUsers.map((user) => (
+            <TableRow
+              key={user.email}
+              className={currentUser?.email === user.email ? "bg-muted/50" : ""}
+            >
+              <TableCell>
+                <div className="flex items-center space-x-4">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback>{getInitials(user)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium leading-none">
+                      {getDisplayName(user)}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </div>
+              </TableCell>
               <TableCell>{user.country}</TableCell>
               <TableCell>{user.entity}</TableCell>
+              <TableCell>{user.agency}</TableCell>
               <TableCell>{user.brand}</TableCell>
-              <TableCell>{user.role}</TableCell>
+              <TableCell>
+                <Badge variant={getRoleBadgeVariant(user.role)}>
+                  {user.role}
+                </Badge>
+              </TableCell>
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical />
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
@@ -257,9 +429,10 @@ export default function AccountPage() {
               changing their role
             </p>
           </DialogHeader>
-          <div className="py-4">
+          <div className="py-4 space-y-2">
+            <label className="text-sm font-medium">Role</label>
             <Select value={form.role} onValueChange={handleRoleChange}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a new role" />
               </SelectTrigger>
               <SelectContent>
