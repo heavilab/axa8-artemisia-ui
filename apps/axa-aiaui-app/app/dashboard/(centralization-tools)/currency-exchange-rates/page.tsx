@@ -157,7 +157,7 @@ export default function CurrencyExchangeRatesPage() {
         <div>
           <h1 className="text-2xl font-semibold">Currency Exchange Rates</h1>
           <p className="text-muted-foreground mt-2">
-            Foreign exchange rates and currency conversion data
+            Foreign exchange rates and currency conversion data.
           </p>
         </div>
         <div className="flex gap-2">

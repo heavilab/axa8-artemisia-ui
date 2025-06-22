@@ -132,7 +132,7 @@ export default function Page() {
         <div>
           <h1 className="text-2xl font-semibold">Countries</h1>
           <p className="text-muted-foreground mt-2">
-            Country configurations with currency and language settings
+            Country configurations with currency and language settings.
           </p>
         </div>
         <div className="flex gap-2">

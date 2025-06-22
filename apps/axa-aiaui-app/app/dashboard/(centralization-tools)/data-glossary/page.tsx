@@ -181,7 +181,7 @@ export default function DataGlossaryPage() {
         <div>
           <h1 className="text-2xl font-semibold">Data Glossary</h1>
           <p className="text-muted-foreground mt-2">
-            Reference guide for data field definitions and specifications
+            Reference guide for data field definitions and specifications.
           </p>
         </div>
         <div className="flex gap-2">

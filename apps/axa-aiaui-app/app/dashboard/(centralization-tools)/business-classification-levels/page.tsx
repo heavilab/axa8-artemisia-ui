@@ -209,7 +209,7 @@ export default function BusinessClassificationLevelsPage() {
             Business Classification Levels
           </h1>
           <p className="text-muted-foreground mt-2">
-            Hierarchical business classification with definitions and examples
+            Hierarchical business classification with definitions and examples.
           </p>
         </div>
         <div className="flex gap-2">

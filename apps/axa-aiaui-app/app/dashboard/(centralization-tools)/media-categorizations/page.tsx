@@ -172,7 +172,7 @@ export default function MediaCategorizationsPage() {
         <div>
           <h1 className="text-2xl font-semibold">Media Categorizations</h1>
           <p className="text-muted-foreground mt-2">
-            Hierarchical media categorizations with definitions
+            Hierarchical media categorizations with definitions.
           </p>
         </div>
         <div className="flex gap-2">
