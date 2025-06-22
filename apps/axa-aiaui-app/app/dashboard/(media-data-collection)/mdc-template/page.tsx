@@ -60,49 +60,51 @@ type ExtendedMDCTemplates = MDCTemplates & {
   templateCategory?: TemplateCategory;
 };
 
-// Template categories
+// Template categories with their kebab-case mappings
 const TEMPLATE_CATEGORIES = [
-  "Digital direct display",
-  "Digital direct video",
-  "Digital programmatic",
-  "Paid search",
-  "Paid social",
-  "Print media",
-  "Radio",
-  "DOOH",
-  "OOH",
+  { display: "Digital direct display", kebab: "digital-direct-display" },
+  { display: "Digital direct video", kebab: "digital-direct-video" },
+  { display: "Digital direct audio", kebab: "digital-direct-audio" },
+  { display: "Digital programmatic", kebab: "digital-programmatic" },
+  { display: "Paid search", kebab: "paid-search" },
+  { display: "Paid social", kebab: "paid-social" },
+  { display: "Print media", kebab: "print-media" },
+  { display: "Radio", kebab: "radio" },
+  { display: "DOOH", kebab: "dooh" },
+  { display: "OOH", kebab: "ooh" },
+  { display: "TV", kebab: "tv" },
+  { display: "Cinema", kebab: "cinema" },
+  { display: "Special ops", kebab: "special-ops" },
+  { display: "Referencing", kebab: "referencing" },
 ] as const;
 
-type TemplateCategory = (typeof TEMPLATE_CATEGORIES)[number];
+type TemplateCategory = (typeof TEMPLATE_CATEGORIES)[number]["display"];
+
+// Helper function to get kebab case from display name
+const getKebabCase = (display: TemplateCategory): string => {
+  const category = TEMPLATE_CATEGORIES.find((cat) => cat.display === display);
+  return category?.kebab || display.toLowerCase().replace(/\s+/g, "-");
+};
 
 // Color mapping for badges
 const getCategoryColor = (category: TemplateCategory) => {
   const colors: Record<TemplateCategory, string> = {
     "Digital direct display": "bg-blue-100 text-blue-800",
     "Digital direct video": "bg-purple-100 text-purple-800",
-    "Digital programmatic": "bg-indigo-100 text-indigo-800",
-    "Paid search": "bg-green-100 text-green-800",
-    "Paid social": "bg-pink-100 text-pink-800",
-    "Print media": "bg-orange-100 text-orange-800",
-    Radio: "bg-yellow-100 text-yellow-800",
-    DOOH: "bg-teal-100 text-teal-800",
-    OOH: "bg-red-100 text-red-800",
+    "Digital direct audio": "bg-indigo-100 text-indigo-800",
+    "Digital programmatic": "bg-green-100 text-green-800",
+    "Paid search": "bg-pink-100 text-pink-800",
+    "Paid social": "bg-orange-100 text-orange-800",
+    "Print media": "bg-yellow-100 text-yellow-800",
+    Radio: "bg-teal-100 text-teal-800",
+    DOOH: "bg-red-100 text-red-800",
+    OOH: "bg-gray-100 text-gray-800",
+    TV: "bg-emerald-100 text-emerald-800",
+    Cinema: "bg-amber-100 text-amber-800",
+    "Special ops": "bg-cyan-100 text-cyan-800",
+    Referencing: "bg-lime-100 text-lime-800",
   };
   return colors[category];
-};
-
-// Template download URLs (you can update these with actual template URLs)
-const TEMPLATE_DOWNLOADS: Record<TemplateCategory, string> = {
-  "Digital direct display":
-    "/documents/mdc-template-digital-direct-display.xlsx",
-  "Digital direct video": "/documents/mdc-template-digital-direct-video.xlsx",
-  "Digital programmatic": "/documents/mdc-template-digital-programmatic.xlsx",
-  "Paid search": "/documents/mdc-template-paid-search.xlsx",
-  "Paid social": "/documents/mdc-template-paid-social.xlsx",
-  "Print media": "/documents/mdc-template-print-media.xlsx",
-  Radio: "/documents/mdc-template-radio.xlsx",
-  DOOH: "/documents/mdc-template-dooh.xlsx",
-  OOH: "/documents/mdc-template-ooh.xlsx",
 };
 
 export default function MDCTemplatePage() {
@@ -258,20 +260,16 @@ export default function MDCTemplatePage() {
   };
 
   const handleTemplateDownload = (category: TemplateCategory) => {
-    const downloadUrl = TEMPLATE_DOWNLOADS[category];
-    if (downloadUrl) {
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = `mdc-template-${category
-        .toLowerCase()
-        .replace(/\s+/g, "-")}.xlsx`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success(`Downloading ${category} template`);
-    } else {
-      toast.error("Template not available for download");
-    }
+    const kebabCase = getKebabCase(category);
+    const downloadUrl = `/documents/mdc-templates/${kebabCase}_media-data-collection-template.xlsx`;
+
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = `${kebabCase}_media-data-collection-template.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`Downloading ${category} template`);
   };
 
   const openDeleteDialog = (item: ExtendedMDCTemplates) => {
@@ -385,10 +383,10 @@ export default function MDCTemplatePage() {
             <DropdownMenuContent align="end">
               {TEMPLATE_CATEGORIES.map((category) => (
                 <DropdownMenuItem
-                  key={category}
-                  onClick={() => handleTemplateDownload(category)}
+                  key={category.display}
+                  onClick={() => handleTemplateDownload(category.display)}
                 >
-                  {category}
+                  {category.display}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -418,13 +416,16 @@ export default function MDCTemplatePage() {
                         setSelectedCategory(value as TemplateCategory)
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select template category" />
                       </SelectTrigger>
                       <SelectContent>
                         {TEMPLATE_CATEGORIES.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
+                          <SelectItem
+                            key={category.display}
+                            value={category.display}
+                          >
+                            {category.display}
                           </SelectItem>
                         ))}
                       </SelectContent>
