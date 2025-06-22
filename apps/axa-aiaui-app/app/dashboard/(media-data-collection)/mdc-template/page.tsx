@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import {
   collection,
   getDocs,
-  orderBy,
   query,
   addDoc,
   deleteDoc,
@@ -19,7 +18,6 @@ import {
 } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogTrigger,
@@ -282,9 +280,12 @@ export default function MDCTemplatePage() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const formatDate = (date: any) => {
+  const formatDate = (date: unknown) => {
     if (!date) return "Unknown";
-    const d = date.toDate ? date.toDate() : new Date(date);
+    const d =
+      date && typeof date === "object" && "toDate" in date
+        ? (date as { toDate: () => Date }).toDate()
+        : new Date(date as string | number);
     return d.toLocaleDateString() + " " + d.toLocaleTimeString();
   };
 

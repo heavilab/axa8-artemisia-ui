@@ -11,7 +11,6 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { useUser } from "@/lib/hooks/use-user";
-import { Badge } from "@/components/ui/badge";
 import {
   Sidebar,
   SidebarContent,
