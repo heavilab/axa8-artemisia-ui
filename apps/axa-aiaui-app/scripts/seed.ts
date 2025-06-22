@@ -24,6 +24,7 @@ const collections: Record<string, { enrich?: boolean }> = {
   businessClassificationLevels: {}, // regular load
   mediaCategorizations: {}, // regular load
   mdcTemplates: {}, // regular load
+  contacts: {}, // regular load
 };
 
 async function clearCollection(collectionName: string) {
@@ -112,6 +113,12 @@ async function importFromCSV(
               createdAt: new Date(),
               publishedAt: new Date(),
               createdBy: "romain@heaviside.fr",
+            };
+          } else if (collectionName === "contacts") {
+            enriched = {
+              ...entry,
+              createdAt: new Date(),
+              updatedAt: new Date(),
             };
           }
 

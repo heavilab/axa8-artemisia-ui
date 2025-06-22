@@ -110,6 +110,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/dashboard/media-categorizations",
           isActive: pathname === "/dashboard/media-categorizations",
         },
+        {
+          title: "Contact Directory",
+          url: "/dashboard/contacts",
+          isActive: pathname === "/dashboard/contacts",
+        },
       ],
     },
     {

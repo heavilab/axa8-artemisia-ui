@@ -128,6 +128,19 @@ export const mediaCategorizationsSchema = z.object({
 
 export type MediaCategorizations = z.infer<typeof mediaCategorizationsSchema>;
 
+// Contact Schema
+export const contactSchema = z.object({
+  name: z.string(),
+  title: z.string(),
+  scope: z.string(),
+  email: z.string().email(),
+  phoneNumber: z.string(),
+  createdAt: z.any().optional(),
+  updatedAt: z.any().optional(),
+});
+
+export type Contact = z.infer<typeof contactSchema>;
+
 // MDC Templates Schema
 export const mdcTemplatesSchema = z.object({
   fileName: z.string(),
