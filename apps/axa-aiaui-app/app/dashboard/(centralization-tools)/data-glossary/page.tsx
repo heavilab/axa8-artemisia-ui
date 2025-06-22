@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import Papa, { ParseResult } from "papaparse";
 import { useUser } from "@/lib/hooks/use-user";
+import { Download, Upload } from "lucide-react";
 
 const REQUIRED_COLUMNS = [
   "priorityOnline",
@@ -184,10 +185,29 @@ export default function DataGlossaryPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={() => {
+              // Remove Firestore 'id' from each row before export
+              const exportData = data.map((row) => {
+                const copy = { ...row };
+                delete (copy as Record<string, unknown>).id;
+                return copy;
+              });
+              exportToCSV(exportData, "data-glossary");
+            }}
+          >
+            <Download className="w-4 h-4" />
+            Download
+          </Button>
           {profile?.role === "Admin" && (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="default">Update</Button>
+                <Button variant="default" className="cursor-pointer">
+                  <Upload className="w-4 h-4" />
+                  Update
+                </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -246,20 +266,6 @@ export default function DataGlossaryPage() {
             {showMustHaveOnly ? "✓" : "○"} MUST HAVE Only
           </Button>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => {
-            // Remove Firestore 'id' from each row before export
-            const exportData = data.map((row) => {
-              const copy = { ...row };
-              delete (copy as Record<string, unknown>).id;
-              return copy;
-            });
-            exportToCSV(exportData, "data-glossary");
-          }}
-        >
-          Download CSV
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

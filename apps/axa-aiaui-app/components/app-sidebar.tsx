@@ -11,6 +11,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { useUser } from "@/lib/hooks/use-user";
+import { Badge } from "@/components/ui/badge";
 import {
   Sidebar,
   SidebarContent,
@@ -121,11 +122,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Business Rules",
           url: "/dashboard/business-rules",
           isActive: pathname === "/dashboard/business-rules",
+          badge: "API",
         },
         {
           title: "Node Mappings",
           url: "/dashboard/node-mappings",
           isActive: pathname === "/dashboard/node-mappings",
+          badge: "API",
+        },
+        {
+          title: "MDC Template",
+          url: "/dashboard/mdc-template",
+          isActive: pathname === "/dashboard/mdc-template",
         },
       ],
     },

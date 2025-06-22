@@ -23,6 +23,7 @@ const collections: Record<string, { enrich?: boolean }> = {
   dataGlossary: {}, // regular load
   businessClassificationLevels: {}, // regular load
   mediaCategorizations: {}, // regular load
+  mdcTemplates: {}, // regular load
 };
 
 async function clearCollection(collectionName: string) {
@@ -125,6 +126,15 @@ async function importFromCSV(
   });
 }
 
+async function seedMDCTemplates() {
+  // Clear the collection first
+  await clearCollection("mdcTemplates");
+
+  // For now, we'll leave it empty since files are uploaded by users
+  // This just ensures the collection exists
+  console.log("✅ Initialized mdcTemplates collection");
+}
+
 async function seed() {
   console.log("🌱 Seeding Firestore...");
 
@@ -133,8 +143,12 @@ async function seed() {
   await Promise.all(collectionNames.map(clearCollection));
 
   for (const collectionName of collectionNames) {
-    const { enrich } = collections[collectionName];
-    await importFromCSV(collectionName, enrich);
+    if (collectionName === "mdcTemplates") {
+      await seedMDCTemplates();
+    } else {
+      const { enrich } = collections[collectionName];
+      await importFromCSV(collectionName, enrich);
+    }
   }
 
   console.log("🎉 Done.");

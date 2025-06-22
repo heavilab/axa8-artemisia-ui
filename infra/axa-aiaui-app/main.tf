@@ -84,6 +84,34 @@ resource "google_firestore_database" "firestore_main" {
   type        = "FIRESTORE_NATIVE"
 }
 
+resource "google_storage_bucket" "gcs_bucket" {
+  name          = "${var.project_id}-storage"
+  location      = var.region
+  force_destroy = false
+  
+  uniform_bucket_level_access = true
+  
+  versioning {
+    enabled = true
+  }
+  
+  lifecycle_rule {
+    condition {
+      age = 365
+    }
+    action {
+      type = "Delete"
+    }
+  }
+  
+  cors {
+    origin          = ["*"]
+    method          = ["GET", "POST", "PUT", "DELETE", "HEAD"]
+    response_header = ["*"]
+    max_age_seconds = 3600
+  }
+}
+
 output "GOOGLE_APPLICATION_CREDENTIALS" {
   value       = google_service_account_key.github_deployer_key.private_key
   sensitive   = true
@@ -95,4 +123,12 @@ output "DEPLOY_SA_EMAIL" {
 
 output "firebase_web_config" {
   value = data.google_firebase_web_app_config.axa_aiaui_config
+}
+
+output "firebase_storage_bucket" {
+  value = google_storage_bucket.gcs_bucket.name
+}
+
+output "gcs_bucket" {
+  value = google_storage_bucket.gcs_bucket.name
 }

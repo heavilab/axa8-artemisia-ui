@@ -127,3 +127,15 @@ export const mediaCategorizationsSchema = z.object({
 });
 
 export type MediaCategorizations = z.infer<typeof mediaCategorizationsSchema>;
+
+// MDC Templates Schema
+export const mdcTemplatesSchema = z.object({
+  fileName: z.string(),
+  fileSize: z.number(),
+  uploadedBy: z.string(),
+  uploadedAt: z.instanceof(Timestamp),
+  storagePath: z.string().optional(),
+  downloadURL: z.string().optional(),
+});
+
+export type MDCTemplates = z.infer<typeof mdcTemplatesSchema>;

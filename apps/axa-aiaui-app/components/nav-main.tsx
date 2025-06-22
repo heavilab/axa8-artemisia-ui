@@ -7,6 +7,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Badge } from "@/components/ui/badge";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -34,6 +35,7 @@ export function NavMain({
       isActive?: boolean;
       isPendingFeature?: boolean;
       target?: string;
+      badge?: string;
     }[];
   }[];
 }) {
@@ -86,6 +88,14 @@ export function NavMain({
                             >
                               {subItem.title}
                             </span>
+                            {subItem.badge && (
+                              <Badge
+                                variant="secondary"
+                                className="ml-auto text-xs"
+                              >
+                                {subItem.badge}
+                              </Badge>
+                            )}
                           </a>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>

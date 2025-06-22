@@ -84,8 +84,7 @@ export function CreateDraftDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm" className="cursor-pointer">
-          <Plus className="h-4 w-4 mr-2" />
-          Create Draft
+          <Plus /> Create Draft
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

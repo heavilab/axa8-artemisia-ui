@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import Papa, { ParseResult } from "papaparse";
 import { useUser } from "@/lib/hooks/use-user";
+import { Download, Upload } from "lucide-react";
 
 const REQUIRED_COLUMNS = ["forex", "value", "date"];
 
@@ -153,12 +154,36 @@ export default function CurrencyExchangeRatesPage() {
   return (
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Currency Exchange Rates</h1>
+        <div>
+          <h1 className="text-2xl font-semibold">Currency Exchange Rates</h1>
+          <p className="text-muted-foreground mt-2">
+            Foreign exchange rates and currency conversion data
+          </p>
+        </div>
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={() => {
+              // Remove Firestore 'id' from each row before export
+              const exportData = data.map((row) => {
+                const copy = { ...row };
+                delete (copy as Partial<typeof copy>).id;
+                return copy;
+              });
+              exportToCSV(exportData, "currency-exchange-rates");
+            }}
+          >
+            <Download className="w-4 h-4" />
+            Download
+          </Button>
           {profile?.role === "Admin" && (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="default">Update</Button>
+                <Button variant="default" className="cursor-pointer">
+                  <Upload className="w-4 h-4" />
+                  Update
+                </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -201,20 +226,6 @@ export default function CurrencyExchangeRatesPage() {
         <div className="flex-1 max-w-xs">
           <Search placeholder="Search..." value={search} onChange={setSearch} />
         </div>
-        <Button
-          variant="outline"
-          onClick={() => {
-            // Remove Firestore 'id' from each row before export
-            const exportData = data.map((row) => {
-              const copy = { ...row };
-              delete (copy as Partial<typeof copy>).id;
-              return copy;
-            });
-            exportToCSV(exportData, "currency-exchange-rates");
-          }}
-        >
-          Download CSV
-        </Button>
       </div>
       <DataTable
         columns={columns}

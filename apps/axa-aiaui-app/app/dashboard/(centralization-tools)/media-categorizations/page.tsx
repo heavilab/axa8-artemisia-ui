@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import Papa, { ParseResult } from "papaparse";
 import { useUser } from "@/lib/hooks/use-user";
-import { ChevronDown, ChevronRight, FileSpreadsheet } from "lucide-react";
+import { ChevronDown, ChevronRight, Download, Upload } from "lucide-react";
 
 const REQUIRED_COLUMNS = ["name", "parentName", "definition", "dataType"];
 
@@ -188,13 +188,14 @@ export default function MediaCategorizationsPage() {
               exportToCSV(exportData, "media-categorizations");
             }}
           >
+            <Download className="h-4 w-4" />
             Download
-            <FileSpreadsheet className="h-4 w-4 ml-1" />
           </Button>
           {profile?.role === "Admin" && (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="default" className="cursor-pointer">
+                  <Upload className="w-4 h-4" />
                   Update
                 </Button>
               </DialogTrigger>
