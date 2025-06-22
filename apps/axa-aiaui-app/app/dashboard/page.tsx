@@ -31,42 +31,6 @@ export default function Page() {
         />
         <HomeCard title="Services" disabled />
       </div>
-
-      <section className="space-y-2">
-        <h2 className="text-xl font-semibold">Data Quality status</h2>
-        <p className="text-muted-foreground">
-          [The Looker Data Quality dashboard - Campaign Overview comparison tab]
-        </p>
-      </section>
-
-      <div className="grid grid-cols-2 gap-4 max-w-6xl">
-        <Card className="hover:shadow-md transition-shadow duration-200">
-          <CardContent className="px-6 space-y-4">
-            <h3 className="text-lg font-semibold">
-              API Data Collection and Completion
-            </h3>
-            <div className="space-y-2">
-              <ActionLink href="/dashboard">
-                Configure dynamic completion →
-              </ActionLink>
-              <SmallLink href="/dashboard">
-                Go to last draft completion →
-              </SmallLink>
-              <ActionLink href="/dashboard">
-                Configure static completion →
-              </ActionLink>
-              <SmallLink href="/dashboard">Go to last draft →</SmallLink>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow duration-200">
-          <CardContent className="px-6 space-y-4">
-            <h3 className="text-lg font-semibold">Non-API Data Collection</h3>
-            <ActionLink href="/mdct">Upload filled template →</ActionLink>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
@@ -118,40 +82,6 @@ function HomeCard({
   return (
     <Link href={href} className="block h-full">
       {cardComponent}
-    </Link>
-  );
-}
-
-function ActionLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="block text-sm font-medium text-foreground hover:text-[#00008F] hover:underline transition-colors"
-    >
-      {children}
-    </Link>
-  );
-}
-
-function SmallLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="block text-xs text-muted-foreground hover:text-[#00008F] hover:underline transition-colors"
-    >
-      {children}
     </Link>
   );
 }
