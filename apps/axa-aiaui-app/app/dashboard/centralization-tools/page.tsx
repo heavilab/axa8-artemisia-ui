@@ -93,7 +93,7 @@ export default function CentralizationToolsPage() {
                 <div className="mt-auto">
                   <Link href={tool.href}>
                     <Button variant="outline" className="w-full cursor-pointer">
-                      <span>Open Tool</span>
+                      <span>Open</span>
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>

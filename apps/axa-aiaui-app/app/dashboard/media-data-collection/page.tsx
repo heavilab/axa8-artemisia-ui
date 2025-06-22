@@ -79,7 +79,7 @@ export default function Page() {
                           variant="outline"
                           className="w-full cursor-pointer"
                         >
-                          <span>Open Tool</span>
+                          <span>Open</span>
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
@@ -123,7 +123,7 @@ export default function Page() {
                           variant="outline"
                           className="w-full cursor-pointer"
                         >
-                          <span>Open Tool</span>
+                          <span>Open</span>
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
